@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Recipes Boi</title>
+{% endblock %}
+
+{% block body %}
+
+<!--Sidebar-->
+<div class="sidebar bar-block" style="width:10%">
+    <a href="/" class="bar-item button">Home</a>
+    <br>
+    {% for recipe in cookbook %}
+
+        <a href="/recipe_view/{{  recipe.id  }}" class="bar-item button">{{ recipe.name }}</a>
+        <br>
+    {% endfor %}
+</div>
+
+<!--Recipe content-->
+<div class="rec-view">
+    <div class="recipe_header">
+       <h1 class='recipe_headline'>
+           {{ recipe.name }}
+       </h1>
+    </div>
+
+    <div class="rec_author">
+        <h3 class="rec_byline">By <a href="{{ publisher[1] }}">{{ publisher[0] }}</a></h3>
+    </div>
+    <div class="rec_date">
+        <span class="rec_dateModified">Today</span>
+    </div>
+    <div class="rec_rate">
+        <span class="rec_rating">{{ recipe.rating }}</span>
+    </div>
+    <div class="rec_times">
+        <div class="rec_times_table">
+            <table>
+                <tr>
+                    <th>Prep Time</th>
+                    <th>Cook Time</th>
+                    <th>Total Time</th>
+                </tr>
+                <tr>
+                    <td>{{ recipe.time }}</td>
+                    <td>{{ recipe.time }}</td>
+                    <td>{{ recipe.time }}</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+    </div>
+    <div class="rec_yield-container">
+        <span class="rec_yield">{{ recipe.recYield }}</span>
+    </div>
+
+    <div class="rec_ingredients-container">
+        <h3 class="rec_ingredients-headline">Ingredients</h3>
+        <hr>
+        <div class="rec_ingredients-list-container">
+            <ul class="rec_ingredients-list">
+                {% for items in ingredients %}
+                    <li class="rec_ingredients-item">{{  items  }}</li>
+                {% endfor %}
+            </ul>
+
+        </div>
+
+    </div>
+
+    <div class="rec_instructions-container">
+        <h3 class="rec_instructions-headline">Instruction</h3>
+        <hr>
+        <div class="rec_instructions-list-container">
+            <ol class="'ingredients-list">
+                {% for items in instructions %}
+                    {% if items.get('@type') == 'HowToStep' %}
+                        <li class="instructions-step-text">{{  items.get('text')  }}</li>
+                    {% elif items.get('@type') == 'HowToSection' %}
+                        <h5 class="instructions-section-name">{{  items.get('name')  }}</h5>
+                        {% if 'itemListElement' in items.keys() %}
+                            {% for elements in items.get('itemListElement') %}
+                                <li class="instructions-step-text-section">{{  elements.get('text')  }} </li>
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
+
+                {% endfor %}
+            </ol>
+
+        </div>
+
+    </div>
+
+
+
+    <form action="/update/url" method="POST">
+        <input type="text" name="url" id="url">
+        <input type="submit" value="Add Recipe">
+    </form>
+</div>
+{%endblock%}  

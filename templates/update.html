@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>CookBook</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1 style='text-align: center'>Add Recipe</h1>
+
+
+    <form action="/update/{{recipe.id}}" method="POST">
+        <input type="text" name="URL" id="URL" value="{{recipe.url}}">
+        <input type="submit" value="Add Recipe">
+    </form>
+</div>
+{%endblock%}  
