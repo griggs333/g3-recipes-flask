@@ -29,10 +29,10 @@
         <h3 class="rec_byline">By <a href="{{ publisher[1] }}">{{ publisher[0] }}</a></h3>
     </div>
     <div class="rec_date">
-        <span class="rec_dateModified">Today</span>
+        <span class="rec_dateModified">Date Modified: {{ recipe.dateModified }}</span>
     </div>
     <div class="rec_rate">
-        <span class="rec_rating">{{ recipe.rating }}</span>
+        <span class="rec_rating">Rating: {{ recipe.rating }}</span>
     </div>
     <div class="rec_times">
         <div class="rec_times_table">
@@ -43,9 +43,9 @@
                     <th>Total Time</th>
                 </tr>
                 <tr>
-                    <td>{{ recipe.time }}</td>
-                    <td>{{ recipe.time }}</td>
-                    <td>{{ recipe.time }}</td>
+                    <td>{{ recipe.prepTime }}</td>
+                    <td>{{ recipe.cookTime }}</td>
+                    <td>{{ recipe.totalTime }}</td>
                 </tr>
 
             </table>
@@ -54,7 +54,7 @@
 
     </div>
     <div class="rec_yield-container">
-        <span class="rec_yield">{{ recipe.recYield }}</span>
+        <span class="rec_yield">Yield: {{ recipe.recYield }}</span>
     </div>
 
     <div class="rec_ingredients-container">
@@ -96,10 +96,5 @@
     </div>
 
 
-
-    <form action="/update/url" method="POST">
-        <input type="text" name="url" id="url">
-        <input type="submit" value="Add Recipe">
-    </form>
 </div>
 {%endblock%}  

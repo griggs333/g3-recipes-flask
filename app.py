@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///recDB.db'
 db = SQLAlchemy(app)
 
 @dataclass
@@ -17,6 +17,7 @@ class Recipe:
     url: str
     headline: str
     author: str
+    description: str
     image: list  #  list with order [@type, url, height, width, description]
     datePublished: str
     dateModified: str
@@ -29,6 +30,8 @@ class Recipe:
     recipeInstructions: list  #  list of tuples [(@type, instruction text),]
     rating: float
     recipeYield: str
+    recipeCategory: str
+    recipeCuisine: str
 
 
 def rec_json_dict(url):
@@ -77,21 +80,36 @@ def rec_json_dict(url):
     else:
         rec_rating = "Rating unknown"
 
-    rec_dict = Recipe(rec_name, rec_url, site_dict.get('headline'), site_dict.get('author'), site_dict.get('image'), site_dict.get('datePublished'), site_dict.get('dateModified'), [rec_publisher_name, rec_publisher_url], site_dict.get('keywords'), site_dict.get('cookTime'), site_dict.get('prepTime'), site_dict.get('totalTime'), site_dict.get('recipeIngredient'), site_dict.get('recipeInstructions'), rec_rating, site_dict.get('recipeYield'))
+
+
+
+
+    rec_dict = Recipe(name= rec_name, url= rec_url, headline= site_dict.get('headline'), author= site_dict.get('author'), image= site_dict.get('image'), datePublished= site_dict.get('datePublished'), dateModified= site_dict.get('dateModified'), publisher= [rec_publisher_name, rec_publisher_url], keywords= site_dict.get('keywords'), cookTime= site_dict.get('cookTime'), prepTime= site_dict.get('prepTime'), totalTime= site_dict.get('totalTime'), recipeIngredient= site_dict.get('recipeIngredient'), recipeInstructions= site_dict.get('recipeInstructions'), rating= rec_rating, recipeYield= site_dict.get('recipeYield'), description= site_dict.get('description'), recipeCategory= site_dict.get('recipeCategory'), recipeCuisine= site_dict.get('recipeCuisine'))
     return rec_dict
 
 
 class RecDB(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
     url = db.Column(db.String(200), nullable=True)
+    headline = db.Column(db.String(100), nullable=True)
+    author = db.Column(db.String(200), nullable=True)
+    description = db.Column(db.String, nullable=True)
     image = db.Column(db.String(200), nullable=True)
+    datePublished = db.Column(db.String(30), nullable=True)
+    dateModified = db.Column(db.String(30), nullable=True)
     publisher = db.Column(db.String(200), nullable=True)
-    time = db.Column(db.String(200), nullable=True)
+    keywords = db.Column(db.String(200), nullable=True)
+    cookTime = db.Column(db.String(30), nullable=True)
+    prepTime = db.Column(db.String(30), nullable=True)
+    totalTime = db.Column(db.String(30), nullable=True)
     recYield = db.Column(db.String(200), nullable=True)
     rating = db.Column(db.String(10), nullable=True)
-    ingredients = db.Column(db.Text, nullable=True)
+    ingredients = db.Column(db.String, nullable=True)
     instructions = db.Column(db.String, nullable=True)
+    category = db.Column(db.String(100), nullable=True)
+    cuisine = db.Column(db.String(50), nullable=True)
+    notes = db.Column(db.String, nullable=True)
 
     def __repr__(self):
         return '<Recipe %r>' % self.id
@@ -137,7 +155,28 @@ def update(url):
         recipe_url = request.form['url']
         rec_dict = rec_json_dict(recipe_url)
 
-        new_recipe = RecDB(name=str(rec_dict.name), url=str(recipe_url), image=str(type(rec_dict.image)), publisher = str(rec_dict.publisher),time=str(rec_dict.totalTime), recYield= str(rec_dict.recipeYield), rating= str(rec_dict.rating), ingredients=str(rec_dict.recipeIngredient), instructions=str(rec_dict.recipeInstructions))
+        new_recipe = RecDB(
+            name=str(rec_dict.name),
+            url=str(recipe_url),
+            headline=str(rec_dict.headline),
+            author=str(rec_dict.author),
+            description=str(rec_dict.description),
+            image=str(type(rec_dict.image)),
+            datePublished= str(rec_dict.datePublished),
+            dateModified=str(rec_dict.dateModified),
+            publisher = str(rec_dict.publisher),
+            keywords=str(rec_dict.keywords),
+            cookTime=str(rec_dict.cookTime),
+            prepTime=str(rec_dict.prepTime),
+            totalTime=str(rec_dict.totalTime),
+            recYield= str(rec_dict.recipeYield),
+            rating= str(rec_dict.rating),
+            ingredients=str(rec_dict.recipeIngredient),
+            instructions=str(rec_dict.recipeInstructions),
+            category= str(rec_dict.recipeCategory),
+            cuisine=str(rec_dict.recipeCuisine),
+            notes = str('')
+        )
         print(new_recipe)
         # new_recipe = RecDB(name = rec_dict.name, url = recipe_url, image = str(type(rec_dict.image)), time = rec_dict.totalTime, recYield = rec_dict.recipeYield, rating = rec_dict.rating, ingredients = str(rec_dict.recipeIngredient), instructions = str(rec_dict.recipeInstructions))
         #new_recipe = RecDB(name = rec_dict.name, url = recipe_url, image = str(type(rec_dict.image)))
