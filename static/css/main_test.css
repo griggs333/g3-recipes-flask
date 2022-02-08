@@ -36,7 +36,8 @@ td {
     width: 100%;
 }
 .rec-view {
-    margin-left:10%;
+    margin-left:11%;
+    border: 10px;
 }
 .ingredients-list{
 }

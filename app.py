@@ -6,6 +6,8 @@ import requests as req
 from bs4 import BeautifulSoup
 import json
 from datetime import datetime
+import isodate
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///recDB.db'
@@ -19,13 +21,13 @@ class Recipe:
     author: str
     description: str
     image: list  #  list with order [@type, url, height, width, description]
-    datePublished: str
-    dateModified: str
+    datePublished: datetime
+    dateModified: datetime
     publisher: list  #  list with order [name, url]
     keywords: str
-    cookTime: str
-    prepTime: str
-    totalTime: str
+    cookTime: datetime
+    prepTime: datetime
+    totalTime: datetime
     recipeIngredient: list  #  list with order [ingredient 1, ingredient2...]
     recipeInstructions: list  #  list of tuples [(@type, instruction text),]
     rating: float
@@ -43,8 +45,6 @@ def rec_json_dict(url):
         site_dict = data[0]
     else:
         site_dict = data
-
-    print(site_dict, type(site_dict))
 
     if 'name' in site_dict.keys():
         rec_name = site_dict.get('name')
@@ -80,11 +80,27 @@ def rec_json_dict(url):
     else:
         rec_rating = "Rating unknown"
 
+    if site_dict.get('dateModified'):
+        site_dict['dateModified'] = isodate.parse_date(site_dict.get('dateModified'))
+
+    if site_dict.get('datePublished'):
+        site_dict['datePublished'] = isodate.parse_date(site_dict.get('datePublished'))
+
+    if site_dict.get('prepTime'):
+        site_dict['prepTime'] =  isodate.parse_duration(site_dict.get('prepTime'))
+
+    if site_dict.get('cookTime'):
+        site_dict['cookTime'] = isodate.parse_duration(site_dict.get('cookTime'))
+
+    if site_dict.get('totalTime'):
+        site_dict['totalTime'] = isodate.parse_duration(site_dict.get('totalTime'))
 
 
 
 
     rec_dict = Recipe(name= rec_name, url= rec_url, headline= site_dict.get('headline'), author= site_dict.get('author'), image= site_dict.get('image'), datePublished= site_dict.get('datePublished'), dateModified= site_dict.get('dateModified'), publisher= [rec_publisher_name, rec_publisher_url], keywords= site_dict.get('keywords'), cookTime= site_dict.get('cookTime'), prepTime= site_dict.get('prepTime'), totalTime= site_dict.get('totalTime'), recipeIngredient= site_dict.get('recipeIngredient'), recipeInstructions= site_dict.get('recipeInstructions'), rating= rec_rating, recipeYield= site_dict.get('recipeYield'), description= site_dict.get('description'), recipeCategory= site_dict.get('recipeCategory'), recipeCuisine= site_dict.get('recipeCuisine'))
+    #print(rec_dict.dateModified, rec_dict.datePublished, rec_dict.prepTime, rec_dict.cookTime, rec_dict.totalTime)
+
     return rec_dict
 
 
@@ -96,8 +112,8 @@ class RecDB(db.Model):
     author = db.Column(db.String(200), nullable=True)
     description = db.Column(db.String, nullable=True)
     image = db.Column(db.String(200), nullable=True)
-    datePublished = db.Column(db.String(30), nullable=True)
-    dateModified = db.Column(db.String(30), nullable=True)
+    datePublished = db.Column(db.Date, nullable=True)
+    dateModified = db.Column(db.Date, nullable=True)
     publisher = db.Column(db.String(200), nullable=True)
     keywords = db.Column(db.String(200), nullable=True)
     cookTime = db.Column(db.String(30), nullable=True)
@@ -110,6 +126,7 @@ class RecDB(db.Model):
     category = db.Column(db.String(100), nullable=True)
     cuisine = db.Column(db.String(50), nullable=True)
     notes = db.Column(db.String, nullable=True)
+    custom = db.Column(db.String, nullable=True)
 
     def __repr__(self):
         return '<Recipe %r>' % self.id
@@ -126,16 +143,10 @@ def recipe_view(id):
     recipe_to_view = RecDB.query.get_or_404(id)
     ingredients = eval(str(recipe_to_view.ingredients))
     instructions = eval(str(recipe_to_view.instructions))
-
-    #publisher = ['temp', 'temp2']
     publisher = eval(str(recipe_to_view.publisher))
-    print(type(recipe_to_view.publisher), recipe_to_view.publisher)
+    author = eval(str(recipe_to_view.author))[0]
 
-    # print(instr_slice, instructions, type(instructions))
-    for items in instructions:
-        print (type(items), items, end='\n')
-
-    return render_template('view_recipe.html', recipe=recipe_to_view, cookbook = cookbook, ingredients = ingredients, instructions = instructions, publisher=publisher)
+    return render_template('view_recipe.html', recipe=recipe_to_view, cookbook = cookbook, author=author, ingredients = ingredients, instructions = instructions, publisher=publisher)
 
 
 @app.route('/delete/<int:id>')
@@ -149,10 +160,58 @@ def delete(id):
     except:
             return 'Problem deleting'
 
+@app.route('/administration', methods={'POST', 'GET'} )
+def administration():
+
+    return render_template('administration.html')
+
 @app.route('/update/<string:url>', methods = ['POST', 'GET'])
 def update(url):
     if request.method == "POST":
         recipe_url = request.form['url']
+        rec_dict = rec_json_dict(recipe_url)
+
+        new_recipe = RecDB(
+            name=str(rec_dict.name),
+            url=str(recipe_url),
+            headline=str(rec_dict.headline),
+            author=str(rec_dict.author),
+            description=str(rec_dict.description),
+            image=str(type(rec_dict.image)),
+            datePublished=rec_dict.datePublished,
+            dateModified=rec_dict.dateModified,
+            publisher = str(rec_dict.publisher),
+            keywords=str(rec_dict.keywords),
+            cookTime=str(rec_dict.cookTime),
+            prepTime=str(rec_dict.prepTime),
+            totalTime=str(rec_dict.totalTime),
+            recYield= str(rec_dict.recipeYield),
+            rating= str(rec_dict.rating),
+            ingredients=str(rec_dict.recipeIngredient),
+            instructions=str(rec_dict.recipeInstructions),
+            category= str(rec_dict.recipeCategory),
+            cuisine=str(rec_dict.recipeCuisine),
+            notes = str(''),
+            custom = str('')
+        )
+        print(new_recipe.datePublished, new_recipe.dateModified)
+
+        # new_recipe = RecDB(name = rec_dict.name, url = recipe_url, image = str(type(rec_dict.image)), time = rec_dict.totalTime, recYield = rec_dict.recipeYield, rating = rec_dict.rating, ingredients = str(rec_dict.recipeIngredient), instructions = str(rec_dict.recipeInstructions))
+        #new_recipe = RecDB(name = rec_dict.name, url = recipe_url, image = str(type(rec_dict.image)))
+        try:
+            db.session.add(new_recipe)
+            db.session.commit()
+            return redirect('/')
+        except:
+            return 'There was an issue adding the recipe'
+    else:
+        return redirect('/')
+    
+@app.route('/add_recipe/<string:url>', methods = ['POST', 'GET'])
+def add_recipe(url):
+    if request.method == "POST":
+        recipe_url = request.form['url']
+        #recipe_form_id = request.form['form_id']
         rec_dict = rec_json_dict(recipe_url)
 
         new_recipe = RecDB(
@@ -177,9 +236,23 @@ def update(url):
             cuisine=str(rec_dict.recipeCuisine),
             notes = str('')
         )
-        print(new_recipe)
-        # new_recipe = RecDB(name = rec_dict.name, url = recipe_url, image = str(type(rec_dict.image)), time = rec_dict.totalTime, recYield = rec_dict.recipeYield, rating = rec_dict.rating, ingredients = str(rec_dict.recipeIngredient), instructions = str(rec_dict.recipeInstructions))
-        #new_recipe = RecDB(name = rec_dict.name, url = recipe_url, image = str(type(rec_dict.image)))
+
+        ingredients = eval(str(new_recipe.ingredients))
+        instructions = eval(str(new_recipe.instructions))
+        publisher = eval(str(new_recipe.publisher))
+
+        return render_template('add_recipe.html', recipe=new_recipe, recipetype= type(new_recipe), publisher=publisher, ingredients=ingredients, instructions=instructions)
+
+    else:
+        return redirect('/administration/')
+
+
+
+@app.route('/commit_recipe/<string:recipe>', methods = ['POST', 'GET'])
+def commit_recipe(recipe):
+    if request.method == "POST":
+        new_recipe = eval(request.form['recipe'])
+
         try:
             db.session.add(new_recipe)
             db.session.commit()
@@ -188,12 +261,18 @@ def update(url):
             return 'There was an issue adding the recipe'
     else:
         return redirect('/')
-    
 
+@app.route('/nav_test/<string:rec_id>', methods={'POST', 'GET'} )
+def nav_test(rec_id):
+    if request.method == "POST":
+        rec_id_int = int(request.form['rec_id'])
+        recipe_to_view = RecDB.query.get_or_404(rec_id_int)
+        ingredients = eval(str(recipe_to_view.ingredients))
+        instructions = eval(str(recipe_to_view.instructions))
+        publisher = eval(str(recipe_to_view.publisher))
+        author = eval(str(recipe_to_view.author))
 
-
-
-
+        return render_template('nav_test.html', recipe=recipe_to_view, author=author, publisher=publisher, ingredients=ingredients, instructions=instructions)
 
 
 if __name__== "__main__":

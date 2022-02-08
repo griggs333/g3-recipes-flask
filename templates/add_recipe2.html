@@ -1,0 +1,37 @@
+{% extends 'view_recipe.html' %}
+
+{% block head %}
+<title>Recipes Boi</title>
+{% endblock %}
+
+{% block body %}
+{% block recipeContent %}
+
+{% block header %}
+{{ super() }}
+    <form action="/add_recipe/url" method="POST">
+        <input type="text" name="url" id="url">
+        <input type="submit" value="Add Recipe">
+    </form>
+{%endblock%}
+
+
+{% block author %}
+{{ super() }}
+{%endblock%}
+
+{% block dateModified %}
+{{ super() }}
+{%endblock%}
+
+{% block rating %}
+{{ super() }}
+{%endblock%}
+
+{% block times %}
+{{ super() }}
+{%endblock%}
+
+{%endblock%}
+
+{%endblock%}

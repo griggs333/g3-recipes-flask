@@ -1,29 +1,20 @@
-{% extends 'base.html' %}
-
-{% block head %}
-<title>Recipes Boi</title>
-{% endblock %}
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav_css.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
 {% block body %}
-
-{% block navbar %}
-<!--Sidebar-->
-<div class="sidebar bar-block" style="width:10%">
-    <a href="/" class="bar-item button">Home</a>
-    <br>
-    {% for recipe in cookbook %}
-
-        <a href="/recipe_view/{{  recipe.id  }}" class="bar-item button">{{ recipe.name }}</a>
-        <br>
-    {% endfor %}
-</div>
-{% endblock %}
 
 {% block recipeContent %}
 <!--Recipe content-->
 <div class="rec-view">
     {% block header %}
-    <div class="recipe_header">
+    <div class="recipe-header">
        <h1 class='recipe-headline'>
            {{ recipe.name }}
        </h1>
@@ -32,26 +23,26 @@
 
     {% block author %}
     <div class="rec-author">
-        <h3 class="rec-byline">By <a href="{{ author.url }}">{{ author.name }}</a> and <a href="{{ publisher[1] }}">{{ publisher[0] }}</a></h3>
+        <h3 class="rec-byline">By {{ author[0].get('name') }} and <a href="{{ publisher[1] }}">{{ publisher[0] }}</a></h3>
     </div>
     {% endblock %}
 
     {% block dateModified %}
-    <div class="rec-date">
-        <span class="rec-dateModified">Date Modified: {{ recipe.dateModified }}</span>
+    <div class="rec-date-rating">
+        <p class="rec-dateModified">Date Modified: {{ dateModified }}</p>
     </div>
     {% endblock %}
 
     {% block rating %}
     <div class="rec-rate">
-        <span class="rec-rating">Rating: {{ recipe.rating }}</span>
+        <p class="rec-rating">Rating: {{ recipe.rating }}</p>
     </div>
     {% endblock %}
 
     {% block times %}
     <div class="rec_times">
         <div class="rec_times_table">
-            <table>
+           <br><table>
                 <tr>
                     <th>Prep Time</th>
                     <th>Cook Time</th>
@@ -115,5 +106,6 @@
 
 </div>
 {% endblock %}
-
-{%endblock%}  
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,99 @@
+{% extends 'view_recipe.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nav_css.css') }}">
+{% endblock %}
+
+{% block head %}
+<title>Recipes Boi</title>
+{% endblock %}
+
+{% block body %}
+
+
+
+{% block navbar %}
+<nav class="main-menu">
+
+
+  <div class="settings"></div>
+  <div class="scrollbar" id="style-1">
+
+    <ul>
+
+      <li>
+        <a href="/">
+          <i class="fa fa-home fa-lg"></i>
+          <span class="nav-text">Home</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="http://startific.com">
+          <i class="fa fa-user fa-lg"></i>
+          <span class="nav-text">Type of Dish</span>
+        </a>
+      </li>
+
+
+      <li>
+        <a href="http://startific.com">
+          <i class="fa fa-envelope-o fa-lg"></i>
+          <span class="nav-text">Cuisine</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="http://startific.com">
+          <i class="fa fa-envelope-o fa-lg"></i>
+          <span class="nav-text">Source</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="http://startific.com">
+          <i class="fa fa-envelope-o fa-lg"></i>
+          <span class="nav-text">Favorites</span>
+        </a>
+      </li>
+
+
+      <li>
+        <a href="http://startific.com">
+          <i class="fa fa-envelope-o fa-lg"></i>
+          <span class="nav-text">Search</span>
+        </a>
+      </li>
+
+
+      <li class="darkerli">
+        <a href="http://startific.com">
+          <i class="fa fa-glass fa-lg"></i>
+          <span class="nav-text">Life & Style
+</span>
+        </a>
+      </li>
+
+      <li class="darkerlishadowdown">
+        <a href="http://startific.com">
+          <i class="fa fa-rocket fa-lg"></i>
+          <span class="nav-text">Fun</span>
+        </a>
+      </li>
+
+
+    </ul>
+
+
+
+  </div> </nav>
+{% endblock %}
+
+<!--Recipe content-->
+{% block recipeContent %}
+{{ super() }}
+
+
+{% endblock %}
+
+{% endblock %}
