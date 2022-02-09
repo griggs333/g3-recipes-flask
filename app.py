@@ -290,14 +290,21 @@ def commit_recipe(recipe):
 @app.route('/nav_test/<string:rec_id>', methods={'POST', 'GET'} )
 def nav_test(rec_id):
     if request.method == "POST":
-        rec_id_int = int(request.form['rec_id'])
-        recipe_to_view = RecDB.query.get_or_404(rec_id_int)
-        ingredients = eval(str(recipe_to_view.ingredients),{})
-        instructions = eval(str(recipe_to_view.instructions),{})
-        publisher = eval(str(recipe_to_view.publisher),{})
-        author = eval(str(recipe_to_view.author),{})[0]
+        id = int(request.form['rec_id'])
 
-        return render_template('nav_test.html', recipe=recipe_to_view, author=author, publisher=publisher, ingredients=ingredients, instructions=instructions)
+    recipe_to_view = RecDB.query.get_or_404(id)
+    ingredients = eval(str(recipe_to_view.ingredients), {})
+    instructions = eval(str(recipe_to_view.instructions), {})
+    publisher = eval(str(recipe_to_view.publisher), {})
+    author = eval(str(recipe_to_view.author), {})[0]
+
+    if recipe_to_view.recYield[0] == '[':
+        recYield = eval(recipe_to_view.recYield, {})
+    else:
+        recYield = recipe_to_view.recYield
+
+    return render_template('nav_test.html', recYield=recYield, recipe=recipe_to_view, author=author, publisher=publisher, ingredients=ingredients, instructions=instructions)
+
 
 
 if __name__== "__main__":

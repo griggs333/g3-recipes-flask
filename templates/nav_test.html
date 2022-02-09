@@ -15,22 +15,20 @@
 {% block navbar %}
 <nav class="main-menu">
 
-
-  <div class="settings"></div>
   <div class="scrollbar" id="style-1">
 
     <ul>
 
       <li>
         <a href="/">
-          <i class="fa fa-home fa-lg"></i>
+            <img class="nav-icon" src="{{ url_for('static', filename='svg/home-svgrepo-com.svg') }}" />
           <span class="nav-text">Home</span>
         </a>
       </li>
 
       <li>
         <a href="http://startific.com">
-          <i class="fa fa-user fa-lg"></i>
+          <img class="nav-icon" src="{{ url_for('static', filename='svg/dish-svgrepo-com.svg') }}" />
           <span class="nav-text">Type of Dish</span>
         </a>
       </li>
@@ -38,21 +36,21 @@
 
       <li>
         <a href="http://startific.com">
-          <i class="fa fa-envelope-o fa-lg"></i>
+          <img class="nav-icon" src="{{ url_for('static', filename='svg/ramen-box-japanese-cuisine-svgrepo-com.svg') }}" />
           <span class="nav-text">Cuisine</span>
         </a>
       </li>
 
       <li>
         <a href="http://startific.com">
-          <i class="fa fa-envelope-o fa-lg"></i>
+          <img class="nav-icon" src="{{ url_for('static', filename='svg/website-svgrepo-com.svg') }}" />
           <span class="nav-text">Source</span>
         </a>
       </li>
 
       <li>
         <a href="http://startific.com">
-          <i class="fa fa-envelope-o fa-lg"></i>
+          <img class="nav-icon" src="{{ url_for('static', filename='svg/favorite-svgrepo-com.svg') }}" />
           <span class="nav-text">Favorites</span>
         </a>
       </li>
@@ -60,24 +58,8 @@
 
       <li>
         <a href="http://startific.com">
-          <i class="fa fa-envelope-o fa-lg"></i>
+         <img class="nav-icon" src="{{ url_for('static', filename='svg/search-svgrepo-com.svg') }}" />
           <span class="nav-text">Search</span>
-        </a>
-      </li>
-
-
-      <li class="darkerli">
-        <a href="http://startific.com">
-          <i class="fa fa-glass fa-lg"></i>
-          <span class="nav-text">Life & Style
-</span>
-        </a>
-      </li>
-
-      <li class="darkerlishadowdown">
-        <a href="http://startific.com">
-          <i class="fa fa-rocket fa-lg"></i>
-          <span class="nav-text">Fun</span>
         </a>
       </li>
 
@@ -86,7 +68,8 @@
 
 
 
-  </div> </nav>
+  </div>
+</nav>
 {% endblock %}
 
 <!--Recipe content-->
