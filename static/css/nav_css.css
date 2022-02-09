@@ -4,7 +4,7 @@ body
   padding:0px;
 	font-family: sans-serif;
 	background-color: lightblue;
-	color:#fff;
+	/*color:#fff; */
 	font-weight:300;
 
 }
@@ -14,23 +14,40 @@ body
   padding:10px;
 	font-family: sans-serif;
 	background-color: lightblue;
-	color:#fff;
+	/*color:#fff;*/
 	font-weight:300;
 
 }
 
-.recipe-header{
-    text-align: center
+.recipe-headline{
+    text-align: center;
 }
 .rec-byline{
-    text-align: center
+    text-align: center;
 }
-.rec-dateModified{
-    text-align: center
+.rec-date-rate{
+    text-align: center;
 }
-.rec-rating{
-    text-align: center
-}
+.rec-times-table{}
+    table, td, th {
+    border: 1px solid #aaa;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th {
+        height: 60px;
+    }
+
+    td {
+        text-align: center;
+        padding: 5px;
+    }
+
+
 
 
 

@@ -23,7 +23,7 @@
 <!--Recipe content-->
 <div class="rec-view">
     {% block header %}
-    <div class="recipe_header">
+    <div class="recipe_header" contenteditable="true">
        <h1 class='recipe-headline'>
            {{ recipe.name }}
        </h1>
@@ -37,20 +37,14 @@
     {% endblock %}
 
     {% block dateModified %}
-    <div class="rec-date">
-        <span class="rec-dateModified">Date Modified: {{ recipe.dateModified }}</span>
-    </div>
-    {% endblock %}
-
-    {% block rating %}
-    <div class="rec-rate">
-        <span class="rec-rating">Rating: {{ recipe.rating }}</span>
+    <div class="rec-date-rate">
+        <span class="rec-dateModified">Date Modified: {{ recipe.dateModified.strftime("%B %d, %Y") }}</span>{% endblock %} {% block rating %}<span class="rec-rating">Rating: {{ recipe.rating }}</span>
     </div>
     {% endblock %}
 
     {% block times %}
-    <div class="rec_times">
-        <div class="rec_times_table">
+    <div class="rec-times">
+        <div class="rec-times-table">
             <table>
                 <tr>
                     <th>Prep Time</th>
@@ -70,8 +64,9 @@
     </div>
     {% endblock %}
 
-    <div class="rec_yield-container">
-        <span class="rec_yield">Yield: {{ recipe.recYield }}</span>
+    <br>
+    <div class="rec-yield-container">
+        <span class="rec-yield">Yield: {{ recipe.recYield }}</span>
     </div>
 
     <div class="rec_ingredients-container">

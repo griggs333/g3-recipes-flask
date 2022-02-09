@@ -5,8 +5,9 @@ from dataclasses import dataclass
 import requests as req
 from bs4 import BeautifulSoup
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import isodate
+from loguru import logger
 
 
 app = Flask(__name__)
@@ -34,6 +35,23 @@ class Recipe:
     recipeYield: str
     recipeCategory: str
     recipeCuisine: str
+
+def format_timedelta(delta: timedelta) -> str:
+    """Formats a timedelta duration to %H:%M:%S format"""
+    seconds = int(delta.total_seconds())
+
+    secs_in_a_hour = 3600
+    secs_in_a_min = 60
+
+    hours, seconds = divmod(seconds, secs_in_a_hour)
+    minutes, seconds = divmod(seconds, secs_in_a_min)
+
+    if hours >= 1:
+        time_fmt = f"{hours} hr {minutes} min"
+    else:
+        time_fmt = f"{minutes} min"
+
+    return time_fmt
 
 
 def rec_json_dict(url):
@@ -80,22 +98,23 @@ def rec_json_dict(url):
     else:
         rec_rating = "Rating unknown"
 
-    if site_dict.get('dateModified'):
-        site_dict['dateModified'] = isodate.parse_date(site_dict.get('dateModified'))
+    iso_dates = ['dateModified', 'datePublished']
+    iso_times = ['prepTime', 'cookTime', 'totalTime']
+    for items in iso_dates:
+        if isinstance(site_dict.get(items), str):
+            site_dict[items] = isodate.parse_date(site_dict.get(items))
+        else:
+            site_dict[items] = None
 
-    if site_dict.get('datePublished'):
-        site_dict['datePublished'] = isodate.parse_date(site_dict.get('datePublished'))
+    for items in iso_times:
+        if isinstance(site_dict.get(items), str):
+            site_dict[items] = format_timedelta(isodate.parse_duration(site_dict.get(items)))
+        else:
+            site_dict[items] = None
 
-    if site_dict.get('prepTime'):
-        site_dict['prepTime'] =  isodate.parse_duration(site_dict.get('prepTime'))
-
-    if site_dict.get('cookTime'):
-        site_dict['cookTime'] = isodate.parse_duration(site_dict.get('cookTime'))
-
-    if site_dict.get('totalTime'):
-        site_dict['totalTime'] = isodate.parse_duration(site_dict.get('totalTime'))
-
-
+    if 'recipeYield' in site_dict.keys():
+        if isinstance(site_dict['recipeYield'], list):
+            site_dict['recipeYield'] = f"Serves: {site_dict['recipeYield'][0]}    Makes: {site_dict['recipeYield'][1]}"
 
 
     rec_dict = Recipe(name= rec_name, url= rec_url, headline= site_dict.get('headline'), author= site_dict.get('author'), image= site_dict.get('image'), datePublished= site_dict.get('datePublished'), dateModified= site_dict.get('dateModified'), publisher= [rec_publisher_name, rec_publisher_url], keywords= site_dict.get('keywords'), cookTime= site_dict.get('cookTime'), prepTime= site_dict.get('prepTime'), totalTime= site_dict.get('totalTime'), recipeIngredient= site_dict.get('recipeIngredient'), recipeInstructions= site_dict.get('recipeInstructions'), rating= rec_rating, recipeYield= site_dict.get('recipeYield'), description= site_dict.get('description'), recipeCategory= site_dict.get('recipeCategory'), recipeCuisine= site_dict.get('recipeCuisine'))
@@ -145,6 +164,8 @@ def recipe_view(id):
     instructions = eval(str(recipe_to_view.instructions))
     publisher = eval(str(recipe_to_view.publisher))
     author = eval(str(recipe_to_view.author))[0]
+
+
 
     return render_template('view_recipe.html', recipe=recipe_to_view, cookbook = cookbook, author=author, ingredients = ingredients, instructions = instructions, publisher=publisher)
 
@@ -270,7 +291,7 @@ def nav_test(rec_id):
         ingredients = eval(str(recipe_to_view.ingredients))
         instructions = eval(str(recipe_to_view.instructions))
         publisher = eval(str(recipe_to_view.publisher))
-        author = eval(str(recipe_to_view.author))
+        author = eval(str(recipe_to_view.author))[0]
 
         return render_template('nav_test.html', recipe=recipe_to_view, author=author, publisher=publisher, ingredients=ingredients, instructions=instructions)
 
