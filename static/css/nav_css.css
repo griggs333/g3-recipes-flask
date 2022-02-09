@@ -28,6 +28,13 @@ body
 .rec-date-rate{
     text-align: center;
 }
+.rec-rating{
+    margin-left:50px;
+
+
+}
+
+
 .rec-times-table{}
     table, td, th {
     border: 1px solid #aaa;

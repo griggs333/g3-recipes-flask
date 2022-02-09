@@ -38,7 +38,7 @@
 
     {% block dateModified %}
     <div class="rec-date-rate">
-        <span class="rec-dateModified">Date Modified: {{ recipe.dateModified.strftime("%B %d, %Y") }}</span>{% endblock %} {% block rating %}<span class="rec-rating">Rating: {{ recipe.rating }}</span>
+        <span class="rec-dateModified">Date Modified: {{ recipe.dateModified.strftime("%B %d, %Y") }}</span>{% endblock %} {% block rating %}<span class="rec-rating">&emsp;Rating: {{ recipe.rating }}</span>
     </div>
     {% endblock %}
 
@@ -66,7 +66,13 @@
 
     <br>
     <div class="rec-yield-container">
-        <span class="rec-yield">Yield: {{ recipe.recYield }}</span>
+        {% if recYield is string %}
+            <span class="rec-yield">Yield: {{ recYield }}</span>
+        {% elif recYield is sequence %}
+            <span class="rec-yield">Serves: {{ recYield[0] }} &emsp; Makes: {{ recYield[1] }}</span>
+        {% else %}
+            <span class="rec-yield">Yield: {{ recYield }}</span>
+        {% endif %}
     </div>
 
     <div class="rec_ingredients-container">

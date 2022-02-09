@@ -112,9 +112,11 @@ def rec_json_dict(url):
         else:
             site_dict[items] = None
 
-    if 'recipeYield' in site_dict.keys():
-        if isinstance(site_dict['recipeYield'], list):
-            site_dict['recipeYield'] = f"Serves: {site_dict['recipeYield'][0]}    Makes: {site_dict['recipeYield'][1]}"
+    # site_dict['recipeYield'] = eval(site_dict['recipeYield'])
+
+    # if 'recipeYield' in site_dict.keys():
+    #     if isinstance(site_dict['recipeYield'], list):
+    #         site_dict['recipeYield'] = f"Serves: {site_dict['recipeYield'][0]} &emsp; Makes: {site_dict['recipeYield'][1]}"
 
 
     rec_dict = Recipe(name= rec_name, url= rec_url, headline= site_dict.get('headline'), author= site_dict.get('author'), image= site_dict.get('image'), datePublished= site_dict.get('datePublished'), dateModified= site_dict.get('dateModified'), publisher= [rec_publisher_name, rec_publisher_url], keywords= site_dict.get('keywords'), cookTime= site_dict.get('cookTime'), prepTime= site_dict.get('prepTime'), totalTime= site_dict.get('totalTime'), recipeIngredient= site_dict.get('recipeIngredient'), recipeInstructions= site_dict.get('recipeInstructions'), rating= rec_rating, recipeYield= site_dict.get('recipeYield'), description= site_dict.get('description'), recipeCategory= site_dict.get('recipeCategory'), recipeCuisine= site_dict.get('recipeCuisine'))
@@ -160,14 +162,19 @@ def index():
 def recipe_view(id):
     cookbook = RecDB.query.order_by(RecDB.id).all()
     recipe_to_view = RecDB.query.get_or_404(id)
-    ingredients = eval(str(recipe_to_view.ingredients))
-    instructions = eval(str(recipe_to_view.instructions))
-    publisher = eval(str(recipe_to_view.publisher))
-    author = eval(str(recipe_to_view.author))[0]
+    ingredients = eval(str(recipe_to_view.ingredients),{})
+    instructions = eval(str(recipe_to_view.instructions),{})
+    publisher = eval(str(recipe_to_view.publisher),{})
+    author = eval(str(recipe_to_view.author),{})[0]
 
+    print(recipe_to_view.recYield, type(recipe_to_view.recYield))
 
+    if recipe_to_view.recYield[0] == '[':
+        recYield = eval(recipe_to_view.recYield, {})
+    else:
+        recYield = recipe_to_view.recYield
 
-    return render_template('view_recipe.html', recipe=recipe_to_view, cookbook = cookbook, author=author, ingredients = ingredients, instructions = instructions, publisher=publisher)
+    return render_template('view_recipe.html', recipe=recipe_to_view, cookbook = cookbook, author=author, ingredients = ingredients, instructions = instructions, publisher=publisher, recYield=recYield)
 
 
 @app.route('/delete/<int:id>')
@@ -215,10 +222,7 @@ def update(url):
             notes = str(''),
             custom = str('')
         )
-        print(new_recipe.datePublished, new_recipe.dateModified)
 
-        # new_recipe = RecDB(name = rec_dict.name, url = recipe_url, image = str(type(rec_dict.image)), time = rec_dict.totalTime, recYield = rec_dict.recipeYield, rating = rec_dict.rating, ingredients = str(rec_dict.recipeIngredient), instructions = str(rec_dict.recipeInstructions))
-        #new_recipe = RecDB(name = rec_dict.name, url = recipe_url, image = str(type(rec_dict.image)))
         try:
             db.session.add(new_recipe)
             db.session.commit()
@@ -258,9 +262,9 @@ def add_recipe(url):
             notes = str('')
         )
 
-        ingredients = eval(str(new_recipe.ingredients))
-        instructions = eval(str(new_recipe.instructions))
-        publisher = eval(str(new_recipe.publisher))
+        ingredients = eval(str(new_recipe.ingredients),{})
+        instructions = eval(str(new_recipe.instructions),{})
+        publisher = eval(str(new_recipe.publisher),{})
 
         return render_template('add_recipe.html', recipe=new_recipe, recipetype= type(new_recipe), publisher=publisher, ingredients=ingredients, instructions=instructions)
 
@@ -272,7 +276,7 @@ def add_recipe(url):
 @app.route('/commit_recipe/<string:recipe>', methods = ['POST', 'GET'])
 def commit_recipe(recipe):
     if request.method == "POST":
-        new_recipe = eval(request.form['recipe'])
+        new_recipe = eval(request.form['recipe'],{})
 
         try:
             db.session.add(new_recipe)
@@ -288,10 +292,10 @@ def nav_test(rec_id):
     if request.method == "POST":
         rec_id_int = int(request.form['rec_id'])
         recipe_to_view = RecDB.query.get_or_404(rec_id_int)
-        ingredients = eval(str(recipe_to_view.ingredients))
-        instructions = eval(str(recipe_to_view.instructions))
-        publisher = eval(str(recipe_to_view.publisher))
-        author = eval(str(recipe_to_view.author))[0]
+        ingredients = eval(str(recipe_to_view.ingredients),{})
+        instructions = eval(str(recipe_to_view.instructions),{})
+        publisher = eval(str(recipe_to_view.publisher),{})
+        author = eval(str(recipe_to_view.author),{})[0]
 
         return render_template('nav_test.html', recipe=recipe_to_view, author=author, publisher=publisher, ingredients=ingredients, instructions=instructions)
 
