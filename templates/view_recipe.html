@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'nav_base.html' %}
 
 {% block head %}
 <title>Recipes Boi</title>
@@ -7,16 +7,17 @@
 {% block body %}
 
 {% block navbar %}
+{{ super() }}
 <!--Sidebar-->
-<div class="sidebar bar-block" style="width:10%">
-    <a href="/" class="bar-item button">Home</a>
-    <br>
-    {% for recipe in cookbook %}
+<!--<div class="sidebar bar-block" style="width:10%">-->
+<!--    <a href="/" class="bar-item button">Home</a>-->
+<!--    <br>-->
+<!--    {% for recipe in cookbook %}-->
 
-        <a href="/recipe_view/{{  recipe.id  }}" class="bar-item button">{{ recipe.name }}</a>
-        <br>
-    {% endfor %}
-</div>
+<!--        <a href="/recipe_view/{{  recipe.id  }}" class="bar-item button">{{ recipe.name }}</a>-->
+<!--        <br>-->
+<!--    {% endfor %}-->
+<!--</div>-->
 {% endblock %}
 
 {% block recipeContent %}
@@ -32,7 +33,7 @@
 
     {% block author %}
     <div class="rec-author">
-        <h3 class="rec-byline">By <a href="{{ author.url }}">{{ author.name }}</a> and <a href="{{ publisher[1] }}">{{ publisher[0] }}</a></h3>
+        <h3 class="rec-byline">By <a href="{{ recipe.author_url }}">{{ recipe.author_name }}</a> and <a href="{{ recipe.publisher_url }}">{{ recipe.publisher_name }}</a></h3>
     </div>
     {% endblock %}
 

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'nav_base.html' %}
 
 {% block head %}
 <title>Recipes Boi</title>
@@ -6,30 +6,152 @@
 
 {% block body %}
 
+<!--{% block navbar %}-->
+<!--{{ super() }}-->
+<!--{% endblock %}-->
+
+<!--Link grid-->
+<!--
+<div class="home-link-grid">
+    <div class="home-grid-item">
+        1
+    </div>
+    <div class="home-grid-item">
+        2
+    </div>
+    <div class="home-grid-item">
+        3
+    </div>
+    <div class="home-grid-item">
+        4
+    </div>
+    <div class="home-grid-item">
+        5
+    </div>
+    <div class="home-grid-item">
+        6
+    </div>
+
+
+
+
+</div>
+-->
+
+
+<!--Home horizontal navbar-->
+<nav class="home-navbar-block">
+<div class="home-navbar">
+    <div class="home-navbar-item">
+        <a class="home-navbar-link" href="/search">
+         <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/search-svgrepo-com.svg') }}" />
+          <span class="home-navbar-text">Search</span>
+        </a>
+    </div>
+    <div class="home-navbar-item">
+        <a class="home-navbar-link" href="/category">
+          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/dish-svgrepo-com.svg') }}" />
+          <span class="home-navbar-text">Type of Dish</span>
+        </a>
+    </div>
+    <div class="home-navbar-item">
+        <a class="home-navbar-link" href="/cuisine">
+          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/ramen-box-japanese-cuisine-svgrepo-com.svg') }}" />
+          <span class="home-navbar-text">Cuisine</span>
+        </a>
+    </div>
+    <div class="home-navbar-item">
+        <a class="home-navbar-link" href="/author_list">
+          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/apron-svgrepo-com.svg') }}" />
+          <span class="home-navbar-text">Authors</span>
+        </a>
+    </div>
+    <div class="home-navbar-item">
+        <a class="home-navbar-link" href="/source_list">
+          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/website-svgrepo-com.svg') }}" />
+          <span class="home-navbar-text">Source</span>
+        </a>
+    </div>
+    <div class="home-navbar-item">
+        <a class="home-navbar-link" href="/favorites">
+          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/favorite-svgrepo-com.svg') }}" />
+          <span class="home-navbar-text">Favorites</span>
+        </a>
+    </div>
+
+  </div>
+</nav>
+<br>
+<br>
+
+<!--Recipe filter table-->
 <div class="content">
+
     <h1 style='text-align: center'> Recipes</h1>
     {% if cookbook|length < 1 %}
     <h4 style='text-align: center'>There are no recipes</h4>
     {% else %}
-    {{ tester }}
-    <table>
-        <tr>
-            <th>Recipe Name</th>
-            <th>Publisher</th>
-            <th>Rating</th>
-            <th>Actions</th>
 
-        </tr>
-        {% for recipe in cookbook %}
-            <tr>
-                <td><a href="/recipe_view/{{ recipe.id }}">{{  recipe.name  }}</a></td>
-                <td><a href="{{  recipe.url  }}">{{ recipe.publisher }}</a></td>
-                <td>{{ recipe.rating }}</td>
-                <td><a href="/delete/{{recipe.id}}">Delete</a></td>
+    <div class="filter-table">
+
+        <table>
+            <tr class="filter-row">
+                <td class="blank-filter">
+
+                </td>
+                <td class="dropdown-filter">
+                    <form action="/">
+                        <select id="author" name="author">
+                            <option value="blank"></option>
+                            {% for authors in authors_list %}
+                                <option value="{{ authors[0] }}">{{ authors[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit">
+                    </form>
+                </td>
+                <td class="dropdown-filter">
+
+                </td>
+                <td class="dropdown-filter">
+
+                </td>
+                <td class="search-filter">
+
+                </td>
+                <td class="dropdown-filter">
+
+                </td>
+                <td class="blank-filter">
+
+                </td>
             </tr>
-        {% endfor %}
-    </table>
+
+            <tr>
+                <th>Recipe Name</th>
+                <th>Author</th>
+                <th>Source</th>
+                <th>Rating</th>
+                <th>Category</th>
+                <th>Cuisine</th>
+                <th>Actions</th>
+
+            </tr>
+            {% for recipe in cookbook %}
+                <tr>
+                    <td><a href="/recipe_view/{{ recipe.id }}">{{  recipe.name  }}</a></td>
+                    <td><a href="{{  recipe.author_url  }}">{{ recipe.author_name }}</a></td>
+                    <td><a href="{{  recipe.publisher_url  }}">{{ recipe.publisher_name }}</a></td>
+                    <td>{{ recipe.rating }}</td>
+                    <td><a href="/by_category/{{ recipe.category }}">{{ recipe.category }}</a></td>
+                    <td><a href="/by_cuisine/{{ recipe.cuisine }}">{{ recipe.cuisine }}</a></td>
+                    <td><a href="/delete/{{recipe.id}}">Delete</a></td>
+                </tr>
+            {% endfor %}
+        </table>
     {% endif %}
+    </div>
+
 
     <form action="/update/url" method="POST">
         <input type="text" name="url" id="url">
@@ -40,10 +162,7 @@
         <input type="submit" value="administration">
     </form>
 
-    <form action="/nav_test/rec_id" method="POST">
-        <input type="text" name="rec_id" id="rec_id">
-        <input type="submit" value="NAV TEST">
-    </form>
+
 
 </div>
 {%endblock%}  

@@ -13,70 +13,7 @@
 
 
 {% block navbar %}
-<nav class="main-menu">
-
-  <div class="scrollbar" id="style-1">
-
-    <ul>
-
-      <li>
-        <a href="/">
-            <img class="nav-icon" src="{{ url_for('static', filename='svg/home-svgrepo-com.svg') }}" />
-          <span class="nav-text">Home</span>
-        </a>
-      </li>
-
-      <li>
-        <a href="/category">
-          <img class="nav-icon" src="{{ url_for('static', filename='svg/dish-svgrepo-com.svg') }}" />
-          <span class="nav-text">Type of Dish</span>
-        </a>
-      </li>
-
-
-      <li>
-        <a href="/cuisine">
-          <img class="nav-icon" src="{{ url_for('static', filename='svg/ramen-box-japanese-cuisine-svgrepo-com.svg') }}" />
-          <span class="nav-text">Cuisine</span>
-        </a>
-      </li>
-
-      <li>
-        <a href="/author_list">
-          <img class="nav-icon" src="{{ url_for('static', filename='svg/apron-svgrepo-com.svg') }}" />
-          <span class="nav-text">Authors</span>
-        </a>
-      </li>
-
-      <li>
-        <a href="/source_list">
-          <img class="nav-icon" src="{{ url_for('static', filename='svg/website-svgrepo-com.svg') }}" />
-          <span class="nav-text">Source</span>
-        </a>
-      </li>
-
-      <li>
-        <a href="/favorites">
-          <img class="nav-icon" src="{{ url_for('static', filename='svg/favorite-svgrepo-com.svg') }}" />
-          <span class="nav-text">Favorites</span>
-        </a>
-      </li>
-
-
-      <li>
-        <a href="/search">
-         <img class="nav-icon" src="{{ url_for('static', filename='svg/search-svgrepo-com.svg') }}" />
-          <span class="nav-text">Search</span>
-        </a>
-      </li>
-
-
-    </ul>
-
-
-
-  </div>
-</nav>
+{{ super() }}
 {% endblock %}
 
 <!--Recipe content-->

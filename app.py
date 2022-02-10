@@ -134,12 +134,14 @@ class RecDB(db.Model):
     name = db.Column(db.String(100), nullable=False)
     url = db.Column(db.String(200), nullable=True)
     headline = db.Column(db.String(100), nullable=True)
-    author = db.Column(db.String(200), nullable=True)
+    author_name = db.Column(db.String(50), nullable=True)
+    author_url = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
     image = db.Column(db.String(200), nullable=True)
     datePublished = db.Column(db.Date, nullable=True)
     dateModified = db.Column(db.Date, nullable=True)
-    publisher = db.Column(db.String(200), nullable=True)
+    publisher_name = db.Column(db.String(50), nullable=True)
+    publisher_url = db.Column(db.String, nullable=True)
     keywords = db.Column(db.String(200), nullable=True)
     cookTime = db.Column(db.String(30), nullable=True)
     prepTime = db.Column(db.String(30), nullable=True)
@@ -157,10 +159,25 @@ class RecDB(db.Model):
         return '<Recipe %r>' % self.id
 
 
-@app.route('/', methods={'POST', 'GET'} )
-def index():
-    cookbook = RecDB.query.order_by(RecDB.id).all()
-    return render_template('index.html', cookbook=cookbook)
+@app.route('/<string:params>', methods={'POST', 'GET'} )
+def index(params):
+    if request.method == "POST":
+        author_filter = request.form['author']
+        if author_filter == 'blank':
+            cookbook = RecDB.query.order_by(RecDB.id).all()
+        else:
+            cookbook = RecDB.query.filter_by(author_name=author_filter).all()
+    else:
+        cookbook = RecDB.query.order_by(RecDB.id).all()
+
+
+    authors_list = []
+    for recipe in cookbook:
+        author = [recipe.author_name, recipe.author_url]
+        if author not in authors_list:
+            authors_list.append(author)
+
+    return render_template('index.html', cookbook=cookbook, authors_list=authors_list)
 
 @app.route('/recipe_view/<int:id>')
 def recipe_view(id):
@@ -168,8 +185,8 @@ def recipe_view(id):
     recipe_to_view = RecDB.query.get_or_404(id)
     ingredients = eval(str(recipe_to_view.ingredients),{})
     instructions = eval(str(recipe_to_view.instructions),{})
-    publisher = eval(str(recipe_to_view.publisher),{})
-    author = eval(str(recipe_to_view.author),{})
+    # publisher = eval(str(recipe_to_view.publisher),{})
+    # author = eval(str(recipe_to_view.author),{})
 
     print(recipe_to_view.recYield, type(recipe_to_view.recYield))
 
@@ -178,7 +195,7 @@ def recipe_view(id):
     else:
         recYield = recipe_to_view.recYield
 
-    return render_template('nav_test.html', recipe=recipe_to_view, cookbook = cookbook, author=author, ingredients = ingredients, instructions = instructions, publisher=publisher, recYield=recYield)
+    return render_template('nav_test.html', recipe=recipe_to_view, cookbook = cookbook, ingredients = ingredients, instructions = instructions, recYield=recYield)
 
 
 @app.route('/delete/<int:id>')
@@ -207,12 +224,14 @@ def update(url):
             name=str(rec_dict.name),
             url=str(recipe_url),
             headline=str(rec_dict.headline),
-            author=str(rec_dict.author),
+            author_name=str(rec_dict.author['name']),
+            author_url=str(rec_dict.author['url']),
             description=str(rec_dict.description),
             image=str(type(rec_dict.image)),
             datePublished=rec_dict.datePublished,
             dateModified=rec_dict.dateModified,
-            publisher = str(rec_dict.publisher),
+            publisher_name = str(rec_dict.publisher[0]),
+            publisher_url=str(rec_dict.publisher[1]),
             keywords=str(rec_dict.keywords),
             cookTime=str(rec_dict.cookTime),
             prepTime=str(rec_dict.prepTime),
@@ -236,44 +255,44 @@ def update(url):
     else:
         return redirect('/')
     
-@app.route('/add_recipe/<string:url>', methods = ['POST', 'GET'])
-def add_recipe(url):
-    if request.method == "POST":
-        recipe_url = request.form['url']
-        #recipe_form_id = request.form['form_id']
-        rec_dict = rec_json_dict(recipe_url)
-
-        new_recipe = RecDB(
-            name=str(rec_dict.name),
-            url=str(recipe_url),
-            headline=str(rec_dict.headline),
-            author=str(rec_dict.author),
-            description=str(rec_dict.description),
-            image=str(type(rec_dict.image)),
-            datePublished= str(rec_dict.datePublished),
-            dateModified=str(rec_dict.dateModified),
-            publisher = str(rec_dict.publisher),
-            keywords=str(rec_dict.keywords),
-            cookTime=str(rec_dict.cookTime),
-            prepTime=str(rec_dict.prepTime),
-            totalTime=str(rec_dict.totalTime),
-            recYield= str(rec_dict.recipeYield),
-            rating= str(rec_dict.rating),
-            ingredients=str(rec_dict.recipeIngredient),
-            instructions=str(rec_dict.recipeInstructions),
-            category= str(rec_dict.recipeCategory),
-            cuisine=str(rec_dict.recipeCuisine),
-            notes = str('')
-        )
-
-        ingredients = eval(str(new_recipe.ingredients),{})
-        instructions = eval(str(new_recipe.instructions),{})
-        publisher = eval(str(new_recipe.publisher),{})
-
-        return render_template('add_recipe.html', recipe=new_recipe, recipetype= type(new_recipe), publisher=publisher, ingredients=ingredients, instructions=instructions)
-
-    else:
-        return redirect('/administration/')
+# @app.route('/add_recipe/<string:url>', methods = ['POST', 'GET'])
+# def add_recipe(url):
+#     if request.method == "POST":
+#         recipe_url = request.form['url']
+#         #recipe_form_id = request.form['form_id']
+#         rec_dict = rec_json_dict(recipe_url)
+#
+#         new_recipe = RecDB(
+#             name=str(rec_dict.name),
+#             url=str(recipe_url),
+#             headline=str(rec_dict.headline),
+#             author=str(rec_dict.author),
+#             description=str(rec_dict.description),
+#             image=str(type(rec_dict.image)),
+#             datePublished= str(rec_dict.datePublished),
+#             dateModified=str(rec_dict.dateModified),
+#             publisher = str(rec_dict.publisher),
+#             keywords=str(rec_dict.keywords),
+#             cookTime=str(rec_dict.cookTime),
+#             prepTime=str(rec_dict.prepTime),
+#             totalTime=str(rec_dict.totalTime),
+#             recYield= str(rec_dict.recipeYield),
+#             rating= str(rec_dict.rating),
+#             ingredients=str(rec_dict.recipeIngredient),
+#             instructions=str(rec_dict.recipeInstructions),
+#             category= str(rec_dict.recipeCategory),
+#             cuisine=str(rec_dict.recipeCuisine),
+#             notes = str('')
+#         )
+#
+#         ingredients = eval(str(new_recipe.ingredients),{})
+#         instructions = eval(str(new_recipe.instructions),{})
+#         publisher = eval(str(new_recipe.publisher),{})
+#
+#         return render_template('add_recipe.html', recipe=new_recipe, recipetype= type(new_recipe), publisher=publisher, ingredients=ingredients, instructions=instructions)
+#
+#     else:
+#         return redirect('/administration/')
 
 
 
@@ -291,23 +310,23 @@ def commit_recipe(recipe):
     else:
         return redirect('/')
 
-@app.route('/nav_test/<string:rec_id>', methods={'POST', 'GET'} )
-def nav_test(rec_id):
-    if request.method == "POST":
-        id = int(request.form['rec_id'])
-
-    recipe_to_view = RecDB.query.get_or_404(id)
-    ingredients = eval(str(recipe_to_view.ingredients), {})
-    instructions = eval(str(recipe_to_view.instructions), {})
-    publisher = eval(str(recipe_to_view.publisher), {})
-    author = eval(str(recipe_to_view.author), {})
-
-    if recipe_to_view.recYield[0] == '[':
-        recYield = eval(recipe_to_view.recYield, {})
-    else:
-        recYield = recipe_to_view.recYield
-
-    return render_template('nav_test.html', recYield=recYield, recipe=recipe_to_view, author=author, publisher=publisher, ingredients=ingredients, instructions=instructions)
+# @app.route('/nav_test/<string:rec_id>', methods={'POST', 'GET'} )
+# def nav_test(rec_id):
+#     if request.method == "POST":
+#         id = int(request.form['rec_id'])
+#
+#     recipe_to_view = RecDB.query.get_or_404(id)
+#     ingredients = eval(str(recipe_to_view.ingredients), {})
+#     instructions = eval(str(recipe_to_view.instructions), {})
+#     publisher = eval(str(recipe_to_view.publisher), {})
+#     author = eval(str(recipe_to_view.author), {})
+#
+#     if recipe_to_view.recYield[0] == '[':
+#         recYield = eval(recipe_to_view.recYield, {})
+#     else:
+#         recYield = recipe_to_view.recYield
+#
+#     return render_template('nav_test.html', recYield=recYield, recipe=recipe_to_view, author=author, publisher=publisher, ingredients=ingredients, instructions=instructions)
 
 
 @app.route('/favorites')
@@ -322,7 +341,7 @@ def source_list():
     sources_list = []
 
     for recipe in cookbook:
-        source = eval(recipe.publisher, {})
+        source = [recipe.publisher_name, recipe.publisher_url]
         if source not in sources_list:
             sources_list.append(source)
 
@@ -341,7 +360,7 @@ def author_list():
 
     authors_list = []
     for recipe in cookbook:
-        author = [eval(recipe.author,{})['name'], eval(recipe.author,{})['url']]
+        author = [recipe.author_name, recipe.author_url]
         if author not in authors_list:
             authors_list.append(author)
 
