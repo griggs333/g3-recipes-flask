@@ -178,7 +178,7 @@ def recipe_view(id):
     else:
         recYield = recipe_to_view.recYield
 
-    return render_template('view_recipe.html', recipe=recipe_to_view, cookbook = cookbook, author=author, ingredients = ingredients, instructions = instructions, publisher=publisher, recYield=recYield)
+    return render_template('nav_test.html', recipe=recipe_to_view, cookbook = cookbook, author=author, ingredients = ingredients, instructions = instructions, publisher=publisher, recYield=recYield)
 
 
 @app.route('/delete/<int:id>')
