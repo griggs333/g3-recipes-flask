@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Recipes Boi</title>
+{% endblock %}
+
+{% block body %}
+
+<ul>
+    {% for item in authors_list %}
+    <li>
+        <a href="/by_author/{{  item[0]  }}">{{  item[0]  }}</a>
+    </li>
+
+
+    {% endfor %}
+</ul>
+
+
+{%endblock%}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Recipes Boi</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="content">
+    <h1 style='text-align: center'> Recipes</h1>
+    {% if cookbook|length < 1 %}
+    <h4 style='text-align: center'>There are no recipes</h4>
+    {% else %}
+    <table>
+        <tr>
+            <th>Recipe Name</th>
+            <th>Publisher</th>
+            <th>Rating</th>
+            <th>Actions</th>
+
+        </tr>
+        {% for recipe in cookbook %}
+            <tr>
+                <td><a href="/recipe_view/{{ recipe.id }}">{{  recipe.name  }}</a></td>
+                <td><a href="{{  recipe.url  }}">{{ recipe.publisher }}</a></td>
+                <td>{{ recipe.rating }}</td>
+                <td><a href="/delete/{{recipe.id}}">Delete</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+    {% endif %}
+{%endblock%}

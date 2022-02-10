@@ -86,6 +86,10 @@ def rec_json_dict(url):
         #return 'ERROR URL not found in json'
         rec_url = url
 
+    if 'author' in site_dict.keys():
+        if isinstance(site_dict['author'], list):
+            site_dict['author'] = site_dict.get('author')[0]
+
     if 'publisher' in site_dict.keys():
         rec_publisher_name = site_dict.get('publisher').get('name')
         rec_publisher_url = site_dict.get('publisher').get('url')
@@ -165,7 +169,7 @@ def recipe_view(id):
     ingredients = eval(str(recipe_to_view.ingredients),{})
     instructions = eval(str(recipe_to_view.instructions),{})
     publisher = eval(str(recipe_to_view.publisher),{})
-    author = eval(str(recipe_to_view.author),{})[0]
+    author = eval(str(recipe_to_view.author),{})
 
     print(recipe_to_view.recYield, type(recipe_to_view.recYield))
 
@@ -296,7 +300,7 @@ def nav_test(rec_id):
     ingredients = eval(str(recipe_to_view.ingredients), {})
     instructions = eval(str(recipe_to_view.instructions), {})
     publisher = eval(str(recipe_to_view.publisher), {})
-    author = eval(str(recipe_to_view.author), {})[0]
+    author = eval(str(recipe_to_view.author), {})
 
     if recipe_to_view.recYield[0] == '[':
         recYield = eval(recipe_to_view.recYield, {})
@@ -304,6 +308,52 @@ def nav_test(rec_id):
         recYield = recipe_to_view.recYield
 
     return render_template('nav_test.html', recYield=recYield, recipe=recipe_to_view, author=author, publisher=publisher, ingredients=ingredients, instructions=instructions)
+
+
+@app.route('/favorites')
+def favorites():
+    favorites = RecDB.query.filter(RecDB.custom.contains('favorite')).all()
+    return render_template('favorites.html', cookbook=favorites)
+
+
+@app.route('/source_list')
+def source_list():
+    cookbook = RecDB.query.order_by(RecDB.id).all()
+    sources_list = []
+
+    for recipe in cookbook:
+        source = eval(recipe.publisher, {})
+        if source not in sources_list:
+            sources_list.append(source)
+
+    return render_template('source_list.html', sources_list=sources_list)
+
+@app.route('/by_source/<string:source>')
+def by_source(source):
+    by_source = RecDB.query.filter(RecDB.publisher.contains(source)).all()
+
+    return render_template('by_source.html', cookbook=by_source)
+
+
+@app.route('/author_list')
+def author_list():
+    cookbook = RecDB.query.order_by(RecDB.id).all()
+
+    authors_list = []
+    for recipe in cookbook:
+        author = [eval(recipe.author,{})['name'], eval(recipe.author,{})['url']]
+        if author not in authors_list:
+            authors_list.append(author)
+
+    return render_template('author_list.html', authors_list=authors_list)
+
+
+@app.route('/by_author/<string:author>')
+def by_author(author):
+    by_author = RecDB.query.filter(RecDB.author.contains(author)).all()
+
+    return render_template('by_author.html', cookbook=by_author)
+
 
 
 
