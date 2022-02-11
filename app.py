@@ -159,8 +159,8 @@ class RecDB(db.Model):
         return '<Recipe %r>' % self.id
 
 
-@app.route('/<string:params>', methods={'POST', 'GET'} )
-def index(params):
+@app.route('/', methods={'POST', 'GET'} )
+def index():
     if request.method == "POST":
         author_filter = request.form['author']
         if author_filter == 'blank':
@@ -188,14 +188,22 @@ def recipe_view(id):
     # publisher = eval(str(recipe_to_view.publisher),{})
     # author = eval(str(recipe_to_view.author),{})
 
-    print(recipe_to_view.recYield, type(recipe_to_view.recYield))
+    image = eval(str(recipe_to_view.image),{})
+    if image:
+        if isinstance(image, list):
+            image = image[-1]
+        elif isinstance(image, dict):
+            image = image
+        else:
+            image = None
+
 
     if recipe_to_view.recYield[0] == '[':
         recYield = eval(recipe_to_view.recYield, {})
     else:
         recYield = recipe_to_view.recYield
 
-    return render_template('nav_test.html', recipe=recipe_to_view, cookbook = cookbook, ingredients = ingredients, instructions = instructions, recYield=recYield)
+    return render_template('nav_test.html', recipe=recipe_to_view, cookbook = cookbook, image=image, ingredients = ingredients, instructions = instructions, recYield=recYield)
 
 
 @app.route('/delete/<int:id>')
@@ -227,7 +235,7 @@ def update(url):
             author_name=str(rec_dict.author['name']),
             author_url=str(rec_dict.author['url']),
             description=str(rec_dict.description),
-            image=str(type(rec_dict.image)),
+            image=str(rec_dict.image),
             datePublished=rec_dict.datePublished,
             dateModified=rec_dict.dateModified,
             publisher_name = str(rec_dict.publisher[0]),

@@ -23,98 +23,114 @@
 {% block recipeContent %}
 <!--Recipe content-->
 <div class="rec-view">
-    {% block header %}
-    <div class="recipe_header" contenteditable="true">
-       <h1 class='recipe-headline'>
-           {{ recipe.name }}
-       </h1>
-    </div>
-    {% endblock %}
+    <div class="rec-content-container">
 
-    {% block author %}
-    <div class="rec-author">
-        <h3 class="rec-byline">By <a href="{{ recipe.author_url }}">{{ recipe.author_name }}</a> and <a href="{{ recipe.publisher_url }}">{{ recipe.publisher_name }}</a></h3>
-    </div>
-    {% endblock %}
+        {% block header %}
+        <div class="recipe_header" contenteditable="true">
+           <h1 class='recipe-headline'>
+               {{ recipe.name }}
+           </h1>
+        </div>
+        {% endblock %}
 
-    {% block dateModified %}
-    <div class="rec-date-rate">
-        <span class="rec-dateModified">Date Modified: {{ recipe.dateModified.strftime("%B %d, %Y") }}</span>{% endblock %} {% block rating %}<span class="rec-rating">&emsp;Rating: {{ recipe.rating }}</span>
-    </div>
-    {% endblock %}
+        {% block author %}
+        <div class="rec-author">
+            <h3 class="rec-byline">By <a href="{{ recipe.author_url }}">{{ recipe.author_name }}</a> and <a href="{{ recipe.publisher_url }}">{{ recipe.publisher_name }}</a></h3>
+        </div>
+        {% endblock %}
 
-    {% block times %}
-    <div class="rec-times">
-        <div class="rec-times-table">
-            <table>
-                <tr>
-                    <th>Prep Time</th>
-                    <th>Cook Time</th>
-                    <th>Total Time</th>
-                </tr>
-                <tr>
-                    <td>{{ recipe.prepTime }}</td>
-                    <td>{{ recipe.cookTime }}</td>
-                    <td>{{ recipe.totalTime }}</td>
-                </tr>
+        {% block dateModified %}
+        <div class="rec-date-rate">
+            <span class="rec-dateModified">Date Modified: {{ recipe.dateModified.strftime("%B %d, %Y") }}</span>{% endblock %} {% block rating %}<span class="rec-rating">&emsp;Rating: {{ recipe.rating }}</span>
+        </div>
+        {% endblock %}
 
-            </table>
+        {% block image %}
+        <div class="rec-main-img">
+            {% if image is defined() %}
+            <img src="{{ image['url'] }}" alt="" width="650">
+            {% else %}
+            <p>Hello World</p>
+            {% endif %}
 
         </div>
 
-    </div>
-    {% endblock %}
+        {% endblock %}
 
-    <br>
-    <div class="rec-yield-container">
-        {% if recYield is string %}
-            <span class="rec-yield">Yield: {{ recYield }}</span>
-        {% elif recYield is sequence %}
-            <span class="rec-yield">Serves: {{ recYield[0] }} &emsp; Makes: {{ recYield[1] }}</span>
-        {% else %}
-            <span class="rec-yield">Yield: {{ recYield }}</span>
-        {% endif %}
-    </div>
 
-    <div class="rec_ingredients-container">
-        <h3 class="rec_ingredients-headline">Ingredients</h3>
-        <hr>
-        <div class="rec_ingredients-list-container">
-            <ul class="rec_ingredients-list">
-                {% for items in ingredients %}
-                    <li class="rec_ingredients-item">{{  items  }}</li>
-                {% endfor %}
-            </ul>
+
+        {% block times %}
+        <div class="rec-times">
+            <div class="rec-times-table">
+                <table>
+                    <tr>
+                        <th>Prep Time</th>
+                        <th>Cook Time</th>
+                        <th>Total Time</th>
+                    </tr>
+                    <tr>
+                        <td>{{ recipe.prepTime }}</td>
+                        <td>{{ recipe.cookTime }}</td>
+                        <td>{{ recipe.totalTime }}</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+        {% endblock %}
+
+        <br>
+        <div class="rec-yield-container">
+            {% if recYield is string %}
+                <span class="rec-yield">Yield: {{ recYield }}</span>
+            {% elif recYield is sequence %}
+                <span class="rec-yield">Serves: {{ recYield[0] }} &emsp; Makes: {{ recYield[1] }}</span>
+            {% else %}
+                <span class="rec-yield">Yield: {{ recYield }}</span>
+            {% endif %}
+        </div>
+
+        <div class="rec_ingredients-container">
+            <h3 class="rec_ingredients-headline">Ingredients</h3>
+            <hr>
+            <div class="rec_ingredients-list-container">
+                <ul class="rec_ingredients-list">
+                    {% for items in ingredients %}
+                        <li class="rec_ingredients-item">{{  items  }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
 
         </div>
 
-    </div>
-
-    <div class="rec_instructions-container">
-        <h3 class="rec_instructions-headline">Instruction</h3>
-        <hr>
-        <div class="rec_instructions-list-container">
-            <ol class="'ingredients-list">
-                {% for items in instructions %}
-                    {% if items.get('@type') == 'HowToStep' %}
-                        <li class="instructions-step-text">{{  items.get('text')  }}</li>
-                    {% elif items.get('@type') == 'HowToSection' %}
-                        <h5 class="instructions-section-name">{{  items.get('name')  }}</h5>
-                        {% if 'itemListElement' in items.keys() %}
-                            {% for elements in items.get('itemListElement') %}
-                                <li class="instructions-step-text-section">{{  elements.get('text')  }} </li>
-                            {% endfor %}
+        <div class="rec_instructions-container">
+            <h3 class="rec_instructions-headline">Instruction</h3>
+            <hr>
+            <div class="rec_instructions-list-container">
+                <ol class="'ingredients-list">
+                    {% for items in instructions %}
+                        {% if items.get('@type') == 'HowToStep' %}
+                            <li class="instructions-step-text">{{  items.get('text')  }}</li>
+                        {% elif items.get('@type') == 'HowToSection' %}
+                            <h5 class="instructions-section-name">{{  items.get('name')  }}</h5>
+                            {% if 'itemListElement' in items.keys() %}
+                                {% for elements in items.get('itemListElement') %}
+                                    <li class="instructions-step-text-section">{{  elements.get('text')  }} </li>
+                                {% endfor %}
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
 
-                {% endfor %}
-            </ol>
+                    {% endfor %}
+                </ol>
+
+            </div>
 
         </div>
 
     </div>
-
-
 </div>
 {% endblock %}
 

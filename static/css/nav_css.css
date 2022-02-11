@@ -18,6 +18,21 @@ body
 	font-weight:300;
 
 }
+.rec-content-container{
+    width: 100%;
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 16px;
+}
+
+}
+
+.rec-content-row{
+    display: flex;
+
+
+}
 
 .recipe-headline{
     text-align: center;
@@ -30,12 +45,17 @@ body
 }
 .rec-rating{
     margin-left:50px;
+}
+.rec-main-img{
+    text-align: center;
+}
+
+.rec-times-table{
+border: 1px solid #aaa;
+width:
 
 
 }
-
-
-.rec-times-table{}
     table, td, th {
     border: 1px solid #aaa;
     }
@@ -120,7 +140,12 @@ body
 
 
 }
-
+.filter-row{
+text-align: left;
+}
+.filter-row >td {
+    text-align: left;
+}
 
 
 
