@@ -36,6 +36,7 @@ class Recipe:
     recipeCategory: str
     recipeCuisine: str
 
+
 def format_timedelta(delta: timedelta) -> str:
     """Formats a timedelta duration to %H:%M:%S format"""
     seconds = int(delta.total_seconds())
@@ -71,7 +72,6 @@ def rec_json_dict(url):
     else:
         rec_name = "Name Unknown"
 
-    rec_url = 'Third option'
 
     if 'url' in site_dict.keys():
         rec_url = site_dict.get('url')
@@ -97,6 +97,12 @@ def rec_json_dict(url):
         rec_publisher_name = "Publisher unknown"
         rec_publisher_url ="/"
 
+    if 'recipeCuisine' in site_dict.keys():
+        if isinstance(site_dict['recipeCuisine'], list):
+            if len(site_dict['recipeCuisine']) == 1:
+                site_dict['recipeCuisine'] = site_dict['recipeCuisine'][0]
+
+
     if 'aggregateRating' in site_dict.keys():
         rec_rating = site_dict.get('aggregateRating').get('ratingValue')
     else:
@@ -116,18 +122,41 @@ def rec_json_dict(url):
         else:
             site_dict[items] = None
 
-    # site_dict['recipeYield'] = eval(site_dict['recipeYield'])
-
-    # if 'recipeYield' in site_dict.keys():
-    #     if isinstance(site_dict['recipeYield'], list):
-    #         site_dict['recipeYield'] = f"Serves: {site_dict['recipeYield'][0]} &emsp; Makes: {site_dict['recipeYield'][1]}"
-
 
     rec_dict = Recipe(name= rec_name, url= rec_url, headline= site_dict.get('headline'), author= site_dict.get('author'), image= site_dict.get('image'), datePublished= site_dict.get('datePublished'), dateModified= site_dict.get('dateModified'), publisher= [rec_publisher_name, rec_publisher_url], keywords= site_dict.get('keywords'), cookTime= site_dict.get('cookTime'), prepTime= site_dict.get('prepTime'), totalTime= site_dict.get('totalTime'), recipeIngredient= site_dict.get('recipeIngredient'), recipeInstructions= site_dict.get('recipeInstructions'), rating= rec_rating, recipeYield= site_dict.get('recipeYield'), description= site_dict.get('description'), recipeCategory= site_dict.get('recipeCategory'), recipeCuisine= site_dict.get('recipeCuisine'))
     #print(rec_dict.dateModified, rec_dict.datePublished, rec_dict.prepTime, rec_dict.cookTime, rec_dict.totalTime)
 
     return rec_dict
 
+
+def author_filter_list(cookbook):
+    a_list = []
+    for recipe in cookbook:
+        author = [recipe.author_name, recipe.author_url]
+        if author not in a_list:
+            a_list.append(author)
+
+    return a_list
+
+
+def source_filter_list(cookbook):
+    s_list = []
+    for recipe in cookbook:
+        source = [recipe.publisher_name, recipe.publisher_url]
+        if source not in s_list:
+            s_list.append(source)
+
+    return s_list
+
+
+def cuisine_filter_list(cookbook):
+    cu_list = []
+    for recipe in cookbook:
+        cuisine = [recipe.cuisine]
+        if cuisine not in cu_list:
+            cu_list.append(cuisine)
+
+    return cu_list
 
 class RecDB(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -161,23 +190,24 @@ class RecDB(db.Model):
 
 @app.route('/', methods={'POST', 'GET'} )
 def index():
-    if request.method == "POST":
-        author_filter = request.form['author']
-        if author_filter == 'blank':
-            cookbook = RecDB.query.order_by(RecDB.id).all()
-        else:
-            cookbook = RecDB.query.filter_by(author_name=author_filter).all()
+    author_filter = request.args.get('author', default='None', type=str)
+    source_filter = request.args.get('source', default='None', type=str)
+    cuisine_filter = request.args.get('cuisine', default='None', type=str)
+
+    if author_filter != 'None':
+        cookbook = RecDB.query.filter_by(author_name=author_filter).all()
+    elif source_filter != 'None':
+        cookbook = RecDB.query.filter_by(publisher_name=source_filter).all()
+    elif cuisine_filter != 'None':
+        cookbook = RecDB.query.filter_by(cuisine=cuisine_filter).all()
     else:
         cookbook = RecDB.query.order_by(RecDB.id).all()
 
+    a_list = author_filter_list(cookbook)
+    s_list = source_filter_list(cookbook)
+    cu_list = cuisine_filter_list(cookbook)
 
-    authors_list = []
-    for recipe in cookbook:
-        author = [recipe.author_name, recipe.author_url]
-        if author not in authors_list:
-            authors_list.append(author)
-
-    return render_template('index.html', cookbook=cookbook, authors_list=authors_list)
+    return render_template('index.html', cookbook=cookbook, authors_list=a_list, sources_list=s_list, cuisines_list=cu_list)
 
 @app.route('/recipe_view/<int:id>')
 def recipe_view(id):
@@ -191,7 +221,10 @@ def recipe_view(id):
     image = eval(str(recipe_to_view.image),{})
     if image:
         if isinstance(image, list):
-            image = image[-1]
+            if isinstance(image[-1], dict):
+                image = image[-1]
+            elif isinstance(image[-1], str):
+                image = {'url': image[0]}
         elif isinstance(image, dict):
             image = image
         else:
@@ -202,6 +235,9 @@ def recipe_view(id):
         recYield = eval(recipe_to_view.recYield, {})
     else:
         recYield = recipe_to_view.recYield
+
+    if isinstance(instructions, list):
+        instructions = instructions[0]
 
     return render_template('nav_test.html', recipe=recipe_to_view, cookbook = cookbook, image=image, ingredients = ingredients, instructions = instructions, recYield=recYield)
 

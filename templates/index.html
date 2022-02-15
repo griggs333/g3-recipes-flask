@@ -102,7 +102,7 @@
                 <td class="dropdown-filter">
                     <form action="/">
                         <select id="author" name="author">
-                            <option value="blank"></option>
+                            <option value="None"></option>
                             {% for authors in authors_list %}
                                 <option value="{{ authors[0] }}">{{ authors[0] }}</option>
                             {% endfor %}
@@ -111,7 +111,15 @@
                     </form>
                 </td>
                 <td class="dropdown-filter">
-
+                    <form action="/">
+                        <select id="source" name="source">
+                            <option value="None"></option>
+                            {% for sources in sources_list %}
+                                <option value="{{ sources[0] }}">{{ sources[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit">
+                    </form>
                 </td>
                 <td class="dropdown-filter">
 
@@ -120,7 +128,15 @@
 
                 </td>
                 <td class="dropdown-filter">
-
+                    <form action="/">
+                        <select id="cuisine" name="cuisine">
+                            <option value="None"></option>
+                            {% for cuisines in cuisines_list %}
+                                <option value="{{ cuisines[0] }}">{{ cuisines[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit">
+                    </form>
                 </td>
                 <td class="blank-filter">
 
