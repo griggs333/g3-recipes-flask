@@ -91,6 +91,10 @@ db.create_all()
 
 @app.route('/', methods={'POST', 'GET'} )
 def index():
+    return render_template('index.html')
+
+@app.route('/main', methods={'POST', 'GET'} )
+def main_table():
     author_filter = request.args.get('author', default='None', type=str)
     source_filter = request.args.get('source', default='None', type=str)
     cuisine_filter = request.args.get('cuisine', default='None', type=str)
@@ -110,7 +114,7 @@ def index():
 
 
 
-    return render_template('index.html', cookbook=cookbook, authors_list=a_list, sources_list=s_list, cuisines_list=cu_list)
+    return render_template('main_table.html', cookbook=cookbook, authors_list=a_list, sources_list=s_list, cuisines_list=cu_list)
 
 @app.route('/recipe_view/<int:id>')
 def recipe_view(id):
@@ -152,14 +156,14 @@ def delete(id):
     try:
         db.session.delete(recipe_to_delete)
         db.session.commit()
-        return redirect('/')
+        return redirect('/main')
     except:
             return 'Problem deleting'
 
-@app.route('/administration', methods={'POST', 'GET'} )
-def administration():
-
-    return render_template('administration.html')
+# @app.route('/administration', methods={'POST', 'GET'} )
+# def administration():
+#
+#     return render_template('administration.html')
 
 @app.route('/update/<string:url>', methods = ['POST', 'GET'])
 def update(url):
@@ -196,11 +200,11 @@ def update(url):
         try:
             db.session.add(new_recipe)
             db.session.commit()
-            return redirect('/')
+            return redirect('/main')
         except:
             return 'There was an issue adding the recipe'
     else:
-        return redirect('/')
+        return redirect('/main')
     
 # @app.route('/add_recipe/<string:url>', methods = ['POST', 'GET'])
 # def add_recipe(url):
@@ -242,70 +246,70 @@ def update(url):
 #         return redirect('/administration/')
 
 
-@app.route('/add_recipe/<string:url>', methods = ['POST', 'GET'])
-def add_recipe(url):
-    if request.method == "POST":
-        recipe_url = request.form['url']
-        #recipe_form_id = request.form['form_id']
-        rec_dict = scrape.rec_json_dict(recipe_url)
+# @app.route('/add_recipe/<string:url>', methods = ['POST', 'GET'])
+# def add_recipe(url):
+#     if request.method == "POST":
+#         recipe_url = request.form['url']
+#         #recipe_form_id = request.form['form_id']
+#         rec_dict = scrape.rec_json_dict(recipe_url)
+#
+#         new_recipe = RecDB(
+#             name=str(rec_dict.name),
+#             url=str(recipe_url),
+#             headline=str(rec_dict.headline),
+#             author_name=str(rec_dict.author['name']),
+#             author_url=str(rec_dict.author['url']),
+#             description=str(rec_dict.description),
+#             image=str(rec_dict.image),
+#             datePublished=rec_dict.datePublished,
+#             dateModified=rec_dict.dateModified,
+#             publisher_name = str(rec_dict.publisherName),
+#             publisher_url=str(rec_dict.publisherUrl),
+#             keywords=str(rec_dict.keywords),
+#             cookTime=str(rec_dict.cookTime),
+#             prepTime=str(rec_dict.prepTime),
+#             totalTime=str(rec_dict.totalTime),
+#             recYield= str(rec_dict.recipeYield),
+#             rating= str(rec_dict.rating),
+#             ingredients=str(rec_dict.recipeIngredient),
+#             instructions=str(rec_dict.recipeInstructions),
+#             category= str(rec_dict.recipeCategory),
+#             cuisine=str(rec_dict.recipeCuisine),
+#             notes = str(''),
+#             custom = str('')
+#         )
+#
+#         ingredients = eval(str(new_recipe.ingredients),{})
+#         instructions = eval(str(new_recipe.instructions),{})
+#         # publisher = eval(str(new_recipe.publisher),{})
+#
+#         return render_template('add_recipe2.html', recipe=new_recipe, recipetype= type(new_recipe), publisher_name=new_recipe.publisher_name, publisher_url=new_recipe.publisher_url, ingredients=ingredients, instructions=instructions)
+#
+#     else:
+#         return redirect('/administration/')
 
-        new_recipe = RecDB(
-            name=str(rec_dict.name),
-            url=str(recipe_url),
-            headline=str(rec_dict.headline),
-            author_name=str(rec_dict.author['name']),
-            author_url=str(rec_dict.author['url']),
-            description=str(rec_dict.description),
-            image=str(rec_dict.image),
-            datePublished=rec_dict.datePublished,
-            dateModified=rec_dict.dateModified,
-            publisher_name = str(rec_dict.publisherName),
-            publisher_url=str(rec_dict.publisherUrl),
-            keywords=str(rec_dict.keywords),
-            cookTime=str(rec_dict.cookTime),
-            prepTime=str(rec_dict.prepTime),
-            totalTime=str(rec_dict.totalTime),
-            recYield= str(rec_dict.recipeYield),
-            rating= str(rec_dict.rating),
-            ingredients=str(rec_dict.recipeIngredient),
-            instructions=str(rec_dict.recipeInstructions),
-            category= str(rec_dict.recipeCategory),
-            cuisine=str(rec_dict.recipeCuisine),
-            notes = str(''),
-            custom = str('')
-        )
-
-        ingredients = eval(str(new_recipe.ingredients),{})
-        instructions = eval(str(new_recipe.instructions),{})
-        # publisher = eval(str(new_recipe.publisher),{})
-
-        return render_template('add_recipe2.html', recipe=new_recipe, recipetype= type(new_recipe), publisher_name=new_recipe.publisher_name, publisher_url=new_recipe.publisher_url, ingredients=ingredients, instructions=instructions)
-
-    else:
-        return redirect('/administration/')
-
-@app.route('/commit_recipe/<string:recipe>', methods = ['POST', 'GET'])
-def commit_recipe(recipe):
-    form = RecipeForm(request.POST)
-    if request.method == "POST" and form.validate():
-        recName = form.name.data
-        recUrl = form.url.data
-        recDescription = form.description.data
-        recDatePublished = form.datePublished.data
-        recData = [recName, recUrl, recDescription, recDatePublished]
-
-
-
-        # try:
-        #     db.session.add(new_recipe)
-        #     db.session.commit()
-        #     return redirect('/')
-        # except:
-        #     return 'There was an issue adding the recipe'
-    else:
-        return redirect('/administration')
-
-    print(recData)
+# @app.route('/commit_recipe/<string:recipe>', methods = ['POST', 'GET'])
+# def commit_recipe(recipe):
+#     form = RecipeForm(request.POST)
+#     if request.method == "POST" and form.validate():
+#         recName = form.name.data
+#         recUrl = form.url.data
+#         recDescription = form.description.data
+#         recDatePublished = form.datePublished.data
+#         recData = [recName, recUrl, recDescription, recDatePublished]
+#
+#
+#
+#         # try:
+#         #     db.session.add(new_recipe)
+#         #     db.session.commit()
+#         #     return redirect('/')
+#         # except:
+#         #     return 'There was an issue adding the recipe'
+#     else:
+#         return redirect('/administration')
+#
+#     print(recData)
 
 
 # @app.route('/nav_test/<string:rec_id>', methods={'POST', 'GET'} )

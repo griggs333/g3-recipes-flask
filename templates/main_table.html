@@ -1,0 +1,161 @@
+{% extends 'nav_base.html' %}
+
+{% block head %}
+<title>Recipes</title>
+{% endblock %}
+
+{% block body %}
+
+{% block navbarH %}
+{{ super() }}
+{% endblock %}
+
+
+<!--&lt;!&ndash;Home horizontal navbar&ndash;&gt;-->
+<!--<nav class="home-navbar-block">-->
+<!--<div class="home-navbar">-->
+<!--    <div class="home-navbar-item">-->
+<!--        <a class="home-navbar-link" href="/search">-->
+<!--         <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/search-svgrepo-com.svg') }}" />-->
+<!--          <span class="home-navbar-text">Search</span>-->
+<!--        </a>-->
+<!--    </div>-->
+<!--    <div class="home-navbar-item">-->
+<!--        <a class="home-navbar-link" href="/category">-->
+<!--          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/dish-svgrepo-com.svg') }}" />-->
+<!--          <span class="home-navbar-text">Type of Dish</span>-->
+<!--        </a>-->
+<!--    </div>-->
+<!--    <div class="home-navbar-item">-->
+<!--        <a class="home-navbar-link" href="/cuisine">-->
+<!--          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/ramen-box-japanese-cuisine-svgrepo-com.svg') }}" />-->
+<!--          <span class="home-navbar-text">Cuisine</span>-->
+<!--        </a>-->
+<!--    </div>-->
+<!--    <div class="home-navbar-item">-->
+<!--        <a class="home-navbar-link" href="/author_list">-->
+<!--          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/apron-svgrepo-com.svg') }}" />-->
+<!--          <span class="home-navbar-text">Authors</span>-->
+<!--        </a>-->
+<!--    </div>-->
+<!--    <div class="home-navbar-item">-->
+<!--        <a class="home-navbar-link" href="/source_list">-->
+<!--          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/website-svgrepo-com.svg') }}" />-->
+<!--          <span class="home-navbar-text">Source</span>-->
+<!--        </a>-->
+<!--    </div>-->
+<!--    <div class="home-navbar-item">-->
+<!--        <a class="home-navbar-link" href="/favorites">-->
+<!--          <img class="home-navbar-icon" src="{{ url_for('static', filename='svg/favorite-svgrepo-com.svg') }}" />-->
+<!--          <span class="home-navbar-text">Favorites</span>-->
+<!--        </a>-->
+<!--    </div>-->
+
+<!--  </div>-->
+<!--</nav>-->
+<br>
+<br>
+
+<!--Recipe filter table-->
+<div class="content">
+
+    <h1 style='text-align: center'> Recipes</h1>
+    {% if cookbook|length < 1 %}
+    <h4 style='text-align: center'>There are no recipes</h4>
+    {% else %}
+
+    <div class="filter-table">
+
+        <table>
+            <tr class="filter-row">
+                <td class="blank-filter">
+
+                </td>
+                <td class="dropdown-filter-cell">
+                    <form action="/" >
+                        <select id="author" name="author" class="dropdown-filter-form">
+                            <option class="dropdown-filter-option" value="None"></option>
+                            {% for authors in authors_list %}
+                                <option class="dropdown-filter-option" value="{{ authors[0] }}">{{ authors[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit">
+                    </form>
+                </td>
+                <td class="dropdown-filter-cell">
+                    <form action="/">
+                        <select id="source" name="source" class="dropdown-filter-form">
+                            <option class="dropdown-filter-option" value="None"></option>
+                            {% for sources in sources_list %}
+                                <option class="dropdown-filter-option" value="{{ sources[0] }}">{{ sources[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit">
+                    </form>
+                </td>
+                <td class="dropdown-filter-cell">
+
+                </td>
+                <td class="search-filter">
+
+                </td>
+                <td class="dropdown-filter-cell">
+                    <form action="/">
+                        <select id="cuisine" name="cuisine" class="dropdown-filter-form">
+                            <option value="None" class="dropdown-filter-option"></option>
+                            {% for cuisines in cuisines_list %}
+                                <option class="dropdown-filter-option" value="{{ cuisines[0] }}">{{ cuisines[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit">
+                    </form>
+                </td>
+                <td class="blank-filter">
+
+                </td>
+            </tr>
+
+            <tr>
+                <th>Recipe Name</th>
+                <th>Author</th>
+                <th>Source</th>
+                <th>Rating</th>
+                <th>Category</th>
+                <th>Cuisine</th>
+                <th>Actions</th>
+
+            </tr>
+            {% for recipe in cookbook %}
+                <tr class="filter-row">
+                    <td><a href="/recipe_view/{{ recipe.id }}">{{  recipe.name  }}</a></td>
+                    <td><a href="{{  recipe.author_url  }}">{{ recipe.author_name }}</a></td>
+                    <td><a href="{{  recipe.publisher_url  }}">{{ recipe.publisher_name }}</a></td>
+                    <td>{{ recipe.rating }}</td>
+                    <td><a href="/by_category/{{ recipe.category }}">{{ recipe.category }}</a></td>
+                    <td><a href="/by_cuisine/{{ recipe.cuisine }}">{{ recipe.cuisine }}</a></td>
+                    <td><a href="/delete/{{recipe.id}}">Delete</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    </div>
+
+<br><br>
+    <div style="text-align:center">
+    <form action="/update/url" method="POST" style="display: block">
+        <input type="text" name="url" id="url">
+        <input type="submit" value="Add Recipe">
+    </form>
+        <p>DEMO RECIPE IMPORT</p>
+        <p>Future versions will implement import recipe page with auto-filled fields for user to edit</p>
+        <p>Suggested sources for this demo: foodnetwork.com, seriouseats.com, food52.com</p>
+    </div>
+
+<!--    <form action="/administration" method="POST">-->
+<!--        <input type="submit" value="administration">-->
+<!--    </form>-->
+
+
+
+</div>
+{%endblock%}  

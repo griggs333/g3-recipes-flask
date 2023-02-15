@@ -9,6 +9,10 @@ body
 
 }
 
+a:link, a:visited {
+  color: #0070FF;
+}
+
 .rec-view{
   margin-left:55px;
   padding:10px;
@@ -119,6 +123,27 @@ width:
   vertical-align: center;
 }
 
+.home-navbar-link-dead{
+  display: table;
+  height: 30px;
+  vertical-align: center;
+  color: black;
+
+}
+a.home-navbar-link-dead {
+  color: black;
+  text-decoration: line-through;
+
+}
+a.home-navbar-link-dead:hover {
+  color: black;
+  text-decoration: line-through;
+
+}
+
+
+
+
 .home-navbar-icon{
   display: table-cell;
   height: inherit;
@@ -172,58 +197,6 @@ width:
 
 
 
-
-
-
-/*@import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
-}
-@import url(https://fonts.googleapis.com/css?family=Titillium+Web:300);
-*/
-
-
-/* ScrollBar  */
-/*
-.scrollbar
-{
-
-height: 100%;
-width: 100%;
-overflow-y: hidden;
-overflow-x: hidden;
-}
-
-.scrollbar:hover
-{
-
-height: 100%;
-width: 100%;
-overflow-y: scroll;
-overflow-x: hidden;
-}
-*/
-/* Scrollbar Style */
-
-
-/*
-#style-1::-webkit-scrollbar-track
-{
-border-radius: 2px;
-}
-
-#style-1::-webkit-scrollbar
-{
-width: 5px;
-background-color: #F7F7F7;
-}
-
-#style-1::-webkit-scrollbar-thumb
-{
-border-radius: 10px;
--webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-background-color: #BFBFBF;
-}
-*/
-/* Scrollbar End */
 
 
 .main-menu:hover, nav.main-menu.expanded {
@@ -309,6 +282,18 @@ display:table-cell;
 vertical-align:middle;
 width:190px;
 font-family: sans-serif;
+color: black;
+}
+
+.main-menu .nav-text-dead  {
+
+position:relative;
+display:table-cell;
+vertical-align:middle;
+width:190px;
+font-family: sans-serif;
+color: black;
+text-decoration: line-through;
 }
 
 .main-menu>ul.logout {
