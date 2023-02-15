@@ -1,6 +1,9 @@
 from asyncio import new_event_loop
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import FlaskForm
+from wtforms import validators, StringField, IntegerField, DateField, SelectMultipleField, TextAreaField
+from wtforms.validators import DataRequired
 from dataclasses import dataclass
 import requests as req
 from bs4 import BeautifulSoup
@@ -9,154 +12,51 @@ from datetime import datetime, timedelta
 import isodate
 from loguru import logger
 
+import gunicorn_conf
+import scrape
+import format
+import dbquery
+
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///recDB.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-@dataclass
-class Recipe:
-    name: str
-    url: str
-    headline: str
-    author: str
-    description: str
-    image: list  #  list with order [@type, url, height, width, description]
-    datePublished: datetime
-    dateModified: datetime
-    publisher: list  #  list with order [name, url]
-    keywords: str
-    cookTime: datetime
-    prepTime: datetime
-    totalTime: datetime
-    recipeIngredient: list  #  list with order [ingredient 1, ingredient2...]
-    recipeInstructions: list  #  list of tuples [(@type, instruction text),]
-    rating: float
-    recipeYield: str
-    recipeCategory: str
-    recipeCuisine: str
 
 
-def format_timedelta(delta: timedelta) -> str:
-    """Formats a timedelta duration to %H:%M:%S format"""
-    seconds = int(delta.total_seconds())
-
-    secs_in_a_hour = 3600
-    secs_in_a_min = 60
-
-    hours, seconds = divmod(seconds, secs_in_a_hour)
-    minutes, seconds = divmod(seconds, secs_in_a_min)
-
-    if hours >= 1:
-        time_fmt = f"{hours} hr {minutes} min"
-    else:
-        time_fmt = f"{minutes} min"
-
-    return time_fmt
-
-
-def rec_json_dict(url):
-    page = req.get(url)
-    soup = BeautifulSoup(page.content, 'html.parser')
-    rec_json_tag = soup.find('script', type="application/ld+json")
-    data = json.loads(rec_json_tag.text)
-    if isinstance(data, list):
-        site_dict = data[0]
-    else:
-        site_dict = data
-
-    if 'name' in site_dict.keys():
-        rec_name = site_dict.get('name')
-    elif 'headline' in site_dict.keys():
-        rec_name = site_dict.get('headline')
-    else:
-        rec_name = "Name Unknown"
+class RecipeForm(FlaskForm):
+    name = StringField('Recipe Name', [validators.Length(min=4, max=100)])
+    url = StringField('Recipe URL', [validators.Length(min=4, max=100)])
+    headline = StringField('Recipe Headline', [validators.Length(min=4, max=100)])
+    author_name = StringField('Author Name', [validators.Length(min=4, max=100)])
+    author_url = StringField('Author URL', [validators.Length(min=4, max=100)])
+    description = TextAreaField('Description', [validators.Length(min=4, max=100)])
+    image = StringField('Image URL', [validators.Length(min=4, max=100)])
+    image_description = TextAreaField('Image Description', [validators.Length(min=0, max=100)])
+    datePublished = DateField('Date Published')
+    dateModified = DateField('Date Modified')
+    publisher_name = StringField('Source Name', [validators.Length(min=4, max=100)])
+    publisher_url = StringField('Source URL', [validators.Length(min=4, max=100)])
+    keywords = StringField('keywords', [validators.Length(min=4, max=100)])
+    cookTimeHr = IntegerField('Cook Time Hours', [validators.Length(min=0, max=100)])
+    cookTimeMin = IntegerField('Cook Time Minutes', [validators.Length(min=0, max=60)])
+    prepTimeHr = IntegerField('Prep Time Hours', [validators.Length(min=0, max=100)])
+    prepTimeMin = IntegerField('Prep Time Minutes', [validators.Length(min=0, max=60)])
+    totalTimeHr = IntegerField('Total Time Hours', [validators.Length(min=0, max=100)])
+    totalTimeMin = IntegerField('Total Time Minutes', [validators.Length(min=0, max=60)])
+    recYield = StringField('Yield', [validators.Length(min=4, max=100)])
+    recServings = StringField('Yield', [validators.Length(min=4, max=100)])
+    rating = StringField('Site Rating', [validators.Length(min=4, max=100)])
+    ingredients = TextAreaField('Ingredients', [validators.Length(min=4, max=100)])
+    instructions = TextAreaField('Instructions', [validators.Length(min=4, max=100)])
+    category = StringField('Category', choices=['Appetizer', 'Main', 'Sides', 'Dessert', 'Snack', 'Condiment', 'Dip', 'Dressing', 'Spice Mix', 'Marinade', 'Sauce'])
+    cuisine = StringField('Cuisine', [validators.Length(min=4, max=50)])
+    notes = TextAreaField('Notes', [validators.Length(min=4, max=500)])
+    custom = StringField('Custom', [validators.Length(min=4, max=100)])
 
 
-    if 'url' in site_dict.keys():
-        rec_url = site_dict.get('url')
-    elif 'mainEntityOfPage' in site_dict.keys():
-        if isinstance(site_dict.get('mainEntityOfPage'), dict):
-            if '@id' in site_dict.get('mainEntityOfPage').keys():
-                rec_url = site_dict.get('mainEntityOfPage').get('@id')
-        else:
-            rec_url = site_dict.get('mainEntityOfPage')
-
-    else:
-        #return 'ERROR URL not found in json'
-        rec_url = url
-
-    if 'author' in site_dict.keys():
-        if isinstance(site_dict['author'], list):
-            site_dict['author'] = site_dict.get('author')[0]
-
-    if 'publisher' in site_dict.keys():
-        rec_publisher_name = site_dict.get('publisher').get('name')
-        rec_publisher_url = site_dict.get('publisher').get('url')
-    else:
-        rec_publisher_name = "Publisher unknown"
-        rec_publisher_url ="/"
-
-    if 'recipeCuisine' in site_dict.keys():
-        if isinstance(site_dict['recipeCuisine'], list):
-            if len(site_dict['recipeCuisine']) == 1:
-                site_dict['recipeCuisine'] = site_dict['recipeCuisine'][0]
-
-
-    if 'aggregateRating' in site_dict.keys():
-        rec_rating = site_dict.get('aggregateRating').get('ratingValue')
-    else:
-        rec_rating = "Rating unknown"
-
-    iso_dates = ['dateModified', 'datePublished']
-    iso_times = ['prepTime', 'cookTime', 'totalTime']
-    for items in iso_dates:
-        if isinstance(site_dict.get(items), str):
-            site_dict[items] = isodate.parse_date(site_dict.get(items))
-        else:
-            site_dict[items] = None
-
-    for items in iso_times:
-        if isinstance(site_dict.get(items), str):
-            site_dict[items] = format_timedelta(isodate.parse_duration(site_dict.get(items)))
-        else:
-            site_dict[items] = None
-
-
-    rec_dict = Recipe(name= rec_name, url= rec_url, headline= site_dict.get('headline'), author= site_dict.get('author'), image= site_dict.get('image'), datePublished= site_dict.get('datePublished'), dateModified= site_dict.get('dateModified'), publisher= [rec_publisher_name, rec_publisher_url], keywords= site_dict.get('keywords'), cookTime= site_dict.get('cookTime'), prepTime= site_dict.get('prepTime'), totalTime= site_dict.get('totalTime'), recipeIngredient= site_dict.get('recipeIngredient'), recipeInstructions= site_dict.get('recipeInstructions'), rating= rec_rating, recipeYield= site_dict.get('recipeYield'), description= site_dict.get('description'), recipeCategory= site_dict.get('recipeCategory'), recipeCuisine= site_dict.get('recipeCuisine'))
-    #print(rec_dict.dateModified, rec_dict.datePublished, rec_dict.prepTime, rec_dict.cookTime, rec_dict.totalTime)
-
-    return rec_dict
-
-
-def author_filter_list(cookbook):
-    a_list = []
-    for recipe in cookbook:
-        author = [recipe.author_name, recipe.author_url]
-        if author not in a_list:
-            a_list.append(author)
-
-    return a_list
-
-
-def source_filter_list(cookbook):
-    s_list = []
-    for recipe in cookbook:
-        source = [recipe.publisher_name, recipe.publisher_url]
-        if source not in s_list:
-            s_list.append(source)
-
-    return s_list
-
-
-def cuisine_filter_list(cookbook):
-    cu_list = []
-    for recipe in cookbook:
-        cuisine = [recipe.cuisine]
-        if cuisine not in cu_list:
-            cu_list.append(cuisine)
-
-    return cu_list
 
 class RecDB(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -187,6 +87,7 @@ class RecDB(db.Model):
     def __repr__(self):
         return '<Recipe %r>' % self.id
 
+db.create_all()
 
 @app.route('/', methods={'POST', 'GET'} )
 def index():
@@ -203,9 +104,11 @@ def index():
     else:
         cookbook = RecDB.query.order_by(RecDB.id).all()
 
-    a_list = author_filter_list(cookbook)
-    s_list = source_filter_list(cookbook)
-    cu_list = cuisine_filter_list(cookbook)
+    a_list = dbquery.author_filter_list(cookbook)
+    s_list = dbquery.source_filter_list(cookbook)
+    cu_list = dbquery.cuisine_filter_list(cookbook)
+
+
 
     return render_template('index.html', cookbook=cookbook, authors_list=a_list, sources_list=s_list, cuisines_list=cu_list)
 
@@ -236,8 +139,8 @@ def recipe_view(id):
     else:
         recYield = recipe_to_view.recYield
 
-    if isinstance(instructions, list):
-        instructions = instructions[0]
+    # if isinstance(instructions, list):
+    #     instructions = instructions[0]
 
     return render_template('nav_test.html', recipe=recipe_to_view, cookbook = cookbook, image=image, ingredients = ingredients, instructions = instructions, recYield=recYield)
 
@@ -262,7 +165,7 @@ def administration():
 def update(url):
     if request.method == "POST":
         recipe_url = request.form['url']
-        rec_dict = rec_json_dict(recipe_url)
+        rec_dict = scrape.rec_json_dict(recipe_url)
 
         new_recipe = RecDB(
             name=str(rec_dict.name),
@@ -274,8 +177,8 @@ def update(url):
             image=str(rec_dict.image),
             datePublished=rec_dict.datePublished,
             dateModified=rec_dict.dateModified,
-            publisher_name = str(rec_dict.publisher[0]),
-            publisher_url=str(rec_dict.publisher[1]),
+            publisher_name = str(rec_dict.publisherName),
+            publisher_url=str(rec_dict.publisherUrl),
             keywords=str(rec_dict.keywords),
             cookTime=str(rec_dict.cookTime),
             prepTime=str(rec_dict.prepTime),
@@ -304,7 +207,7 @@ def update(url):
 #     if request.method == "POST":
 #         recipe_url = request.form['url']
 #         #recipe_form_id = request.form['form_id']
-#         rec_dict = rec_json_dict(recipe_url)
+#         rec_dict = scrape.rec_json_dict(recipe_url)
 #
 #         new_recipe = RecDB(
 #             name=str(rec_dict.name),
@@ -339,20 +242,71 @@ def update(url):
 #         return redirect('/administration/')
 
 
+@app.route('/add_recipe/<string:url>', methods = ['POST', 'GET'])
+def add_recipe(url):
+    if request.method == "POST":
+        recipe_url = request.form['url']
+        #recipe_form_id = request.form['form_id']
+        rec_dict = scrape.rec_json_dict(recipe_url)
+
+        new_recipe = RecDB(
+            name=str(rec_dict.name),
+            url=str(recipe_url),
+            headline=str(rec_dict.headline),
+            author_name=str(rec_dict.author['name']),
+            author_url=str(rec_dict.author['url']),
+            description=str(rec_dict.description),
+            image=str(rec_dict.image),
+            datePublished=rec_dict.datePublished,
+            dateModified=rec_dict.dateModified,
+            publisher_name = str(rec_dict.publisherName),
+            publisher_url=str(rec_dict.publisherUrl),
+            keywords=str(rec_dict.keywords),
+            cookTime=str(rec_dict.cookTime),
+            prepTime=str(rec_dict.prepTime),
+            totalTime=str(rec_dict.totalTime),
+            recYield= str(rec_dict.recipeYield),
+            rating= str(rec_dict.rating),
+            ingredients=str(rec_dict.recipeIngredient),
+            instructions=str(rec_dict.recipeInstructions),
+            category= str(rec_dict.recipeCategory),
+            cuisine=str(rec_dict.recipeCuisine),
+            notes = str(''),
+            custom = str('')
+        )
+
+        ingredients = eval(str(new_recipe.ingredients),{})
+        instructions = eval(str(new_recipe.instructions),{})
+        # publisher = eval(str(new_recipe.publisher),{})
+
+        return render_template('add_recipe2.html', recipe=new_recipe, recipetype= type(new_recipe), publisher_name=new_recipe.publisher_name, publisher_url=new_recipe.publisher_url, ingredients=ingredients, instructions=instructions)
+
+    else:
+        return redirect('/administration/')
 
 @app.route('/commit_recipe/<string:recipe>', methods = ['POST', 'GET'])
 def commit_recipe(recipe):
-    if request.method == "POST":
-        new_recipe = eval(request.form['recipe'],{})
+    form = RecipeForm(request.POST)
+    if request.method == "POST" and form.validate():
+        recName = form.name.data
+        recUrl = form.url.data
+        recDescription = form.description.data
+        recDatePublished = form.datePublished.data
+        recData = [recName, recUrl, recDescription, recDatePublished]
 
-        try:
-            db.session.add(new_recipe)
-            db.session.commit()
-            return redirect('/')
-        except:
-            return 'There was an issue adding the recipe'
+
+
+        # try:
+        #     db.session.add(new_recipe)
+        #     db.session.commit()
+        #     return redirect('/')
+        # except:
+        #     return 'There was an issue adding the recipe'
     else:
-        return redirect('/')
+        return redirect('/administration')
+
+    print(recData)
+
 
 # @app.route('/nav_test/<string:rec_id>', methods={'POST', 'GET'} )
 # def nav_test(rec_id):
@@ -393,7 +347,7 @@ def source_list():
 
 @app.route('/by_source/<string:source>')
 def by_source(source):
-    by_source = RecDB.query.filter(RecDB.publisher.contains(source)).all()
+    by_source = RecDB.query.filter(RecDB.publisher_name.contains(source)).all()
 
     return render_template('by_source.html', cookbook=by_source)
 
@@ -413,7 +367,7 @@ def author_list():
 
 @app.route('/by_author/<string:author>')
 def by_author(author):
-    by_author = RecDB.query.filter(RecDB.author.contains(author)).all()
+    by_author = RecDB.query.filter(RecDB.author_name.contains(author)).all()
 
     return render_template('by_author.html', cookbook=by_author)
 
@@ -421,4 +375,4 @@ def by_author(author):
 
 
 if __name__== "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port= gunicorn_conf.PORT, debug=gunicorn_conf.DEBUG_MODE)

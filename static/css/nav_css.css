@@ -125,6 +125,7 @@ width:
   width: height;
   padding: 5px 5px;
   vertical-align: middle;
+  Cache-Control: public, max-age=15552000;
 }
 .home-navbar-text{
   display: table-cell;
@@ -137,15 +138,39 @@ width:
 }
 
 .filter-table{
+    display: block;
+    width: 95%;
+    padding: 0px 10px;
+    margin-left: 1%;
 
 
 }
 .filter-row{
-text-align: left;
+    text-align: justify;
+
 }
 .filter-row >td {
-    text-align: left;
+    text-align: justify;
+
 }
+.dropdown-filter-cell{
+    text-align: center;
+    horizontal-align: middle;
+
+}
+
+
+.dropdown-filter-form{
+    max-width: 50px;
+
+}
+.dropdown-filter-option{
+
+}
+
+
+
+
 
 
 

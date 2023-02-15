@@ -99,40 +99,40 @@
                 <td class="blank-filter">
 
                 </td>
-                <td class="dropdown-filter">
-                    <form action="/">
-                        <select id="author" name="author">
-                            <option value="None"></option>
+                <td class="dropdown-filter-cell">
+                    <form action="/" >
+                        <select id="author" name="author" class="dropdown-filter-form">
+                            <option class="dropdown-filter-option" value="None"></option>
                             {% for authors in authors_list %}
-                                <option value="{{ authors[0] }}">{{ authors[0] }}</option>
+                                <option class="dropdown-filter-option" value="{{ authors[0] }}">{{ authors[0] }}</option>
                             {% endfor %}
                         </select>
                         <input type="submit">
                     </form>
                 </td>
-                <td class="dropdown-filter">
+                <td class="dropdown-filter-cell">
                     <form action="/">
-                        <select id="source" name="source">
-                            <option value="None"></option>
+                        <select id="source" name="source" class="dropdown-filter-form">
+                            <option class="dropdown-filter-option" value="None"></option>
                             {% for sources in sources_list %}
-                                <option value="{{ sources[0] }}">{{ sources[0] }}</option>
+                                <option class="dropdown-filter-option" value="{{ sources[0] }}">{{ sources[0] }}</option>
                             {% endfor %}
                         </select>
                         <input type="submit">
                     </form>
                 </td>
-                <td class="dropdown-filter">
+                <td class="dropdown-filter-cell">
 
                 </td>
                 <td class="search-filter">
 
                 </td>
-                <td class="dropdown-filter">
+                <td class="dropdown-filter-cell">
                     <form action="/">
-                        <select id="cuisine" name="cuisine">
-                            <option value="None"></option>
+                        <select id="cuisine" name="cuisine" class="dropdown-filter-form">
+                            <option value="None" class="dropdown-filter-option"></option>
                             {% for cuisines in cuisines_list %}
-                                <option value="{{ cuisines[0] }}">{{ cuisines[0] }}</option>
+                                <option class="dropdown-filter-option" value="{{ cuisines[0] }}">{{ cuisines[0] }}</option>
                             {% endfor %}
                         </select>
                         <input type="submit">
@@ -154,7 +154,7 @@
 
             </tr>
             {% for recipe in cookbook %}
-                <tr>
+                <tr class="filter-row">
                     <td><a href="/recipe_view/{{ recipe.id }}">{{  recipe.name  }}</a></td>
                     <td><a href="{{  recipe.author_url  }}">{{ recipe.author_name }}</a></td>
                     <td><a href="{{  recipe.publisher_url  }}">{{ recipe.publisher_name }}</a></td>
