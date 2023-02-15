@@ -76,7 +76,7 @@ class RecDB(db.Model):
     prepTime = db.Column(db.String(30), nullable=True)
     totalTime = db.Column(db.String(30), nullable=True)
     recYield = db.Column(db.String(200), nullable=True)
-    rating = db.Column(db.String(10), nullable=True)
+    rating = db.Column(db.String(4), nullable=True)
     ingredients = db.Column(db.String, nullable=True)
     instructions = db.Column(db.String, nullable=True)
     category = db.Column(db.String(100), nullable=True)
@@ -87,7 +87,8 @@ class RecDB(db.Model):
     def __repr__(self):
         return '<Recipe %r>' % self.id
 
-db.create_all()
+with app.app_context():
+    db.create_all()
 
 @app.route('/', methods={'POST', 'GET'} )
 def index():

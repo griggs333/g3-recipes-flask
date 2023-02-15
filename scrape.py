@@ -25,7 +25,7 @@ class Recipe:
     totalTime: datetime
     recipeIngredient: list  #  list with order [ingredient 1, ingredient2...]
     recipeInstructions: list  #  list of tuples [(@type, instruction text),]
-    rating: float
+    rating: str
     recipeYield: str
     recipeCategory: str
     recipeCuisine: str
@@ -72,6 +72,10 @@ def rec_json_dict(url):
             if 'URL' in site_dict['author'].keys():
                 site_dict['author']['url'] = site_dict['author']['URL']
 
+    if 'recipeInstructions' in site_dict.keys():
+        if isinstance(site_dict.get('recipeInstructions')[0], list):
+            site_dict['recipeInstructions'] = site_dict.get('recipeInstructions')[0]
+
     if 'publisher' in site_dict.keys():
         rec_publisher_name = site_dict.get('publisher').get('name')
         rec_publisher_url = site_dict.get('publisher').get('url')
@@ -86,7 +90,9 @@ def rec_json_dict(url):
 
 
     if 'aggregateRating' in site_dict.keys():
-        rec_rating = site_dict.get('aggregateRating').get('ratingValue')
+        rec_rating = str(site_dict.get('aggregateRating').get('ratingValue'))
+        if len(rec_rating) > 3:
+            rec_rating = rec_rating[:3]
     else:
         rec_rating = "Rating unknown"
 
